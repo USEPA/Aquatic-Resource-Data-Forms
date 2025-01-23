@@ -24,7 +24,7 @@ sapply(
 )
 
 app_options <- list(
-  theme = "auto",
+  theme = "md",
   dark = FALSE,
  # color = "white",
   navbar = list(

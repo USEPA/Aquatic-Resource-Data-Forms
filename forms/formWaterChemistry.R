@@ -2,6 +2,7 @@ formWaterChemistry <- function(ID) {
   f7Tab(
     title = "Water Chemistry",
     tabName = "WaterChemistry",
+    icon = f7Icon("drop"),
     f7BlockTitle(title = "In Situ Water Collection", size="large") %>% f7Align(side = "center"),
     f7Card(
       outline = TRUE,

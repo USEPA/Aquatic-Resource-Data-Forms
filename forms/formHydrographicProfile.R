@@ -2,6 +2,7 @@ formHydrographicProfile <- function(ID) {
   f7Tab(
     title = "Hydrographic Profile",
     tabName = "HydrographicProfile",
+    icon = f7Icon("flowchart"),
     f7Card(
       outline = TRUE,
       raised = TRUE,
@@ -30,6 +31,7 @@ formHydrographicProfile <- function(ID) {
           inputId = paste0("cleartobottom_", ID),
           label = "Clear to bottom?",
           choices = c("Y", "N"),
+          selected = "N",
           style = list(
             inset = TRUE
           )

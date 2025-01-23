@@ -6,7 +6,7 @@ xy <- vector("list", N) # create an empty list into which values are to be fille
 for (i in 1:N) {
   # generate a data.frame with 4 columns, and add a random number into each one
   # random number depends on the mean specified
-  xy[[i]] <- data.frame(Site_ID = paste(input$tabs),
+  xy[[i]] <- data.frame(Site_ID = paste0(input$tabs),
                         Station_Depth = input[[paste0("stationdepth_", input$tabs)]],
                         Secchi_Depth = input[[paste0("secchidepth_", input$tabs)]],
                         CleartoBottom = input[[paste0("cleartobottom_", input$tabs)]],
@@ -21,15 +21,13 @@ for (i in 1:N) {
 }
 
 
-# result is a list of data.frames with 1 row and 4 columns
+# result is a list of data.frames
 
 # you can bind them together into one data.frame using do.call
 # rbind means they will be merged row-wise
 xy <- do.call(rbind, xy)
 
-xy
-
-
+xy[!(xy$Depth=="" & xy$Temperature=="" & xy$pH=="" & xy$DO=="" & xy$Conductivity==""), ]
 
 
 
