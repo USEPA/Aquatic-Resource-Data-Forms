@@ -43,9 +43,8 @@ formHydrographicProfile <- function(ID) {
       outline = TRUE,
       raised = TRUE,
       f7Grid(
-        cols = 9,
-        p(align = "center", strong("")),
-        p(align = "left", strong("Upcast?")),
+        cols = 6,
+        p(align = "center", strong("Upcast?")),
         p(align = "center", strong("Depth (m)")),
         p(align = "center", strong("Temp (C)")),
         p(align = "center", strong("pH")),
@@ -56,12 +55,13 @@ formHydrographicProfile <- function(ID) {
       ),
       lapply(1:15, function(i) {
       f7Grid(
-        cols = 9,
+        cols = 6,
+        div(style = "text-align: center;", 
         f7Toggle(
           inputId = paste0("ProfileUpcast_",i,"_",ID),
           label = NULL,
           color = "green"
-        ),
+        )),
         f7Text(
           inputId = paste0("ProfileDepth_",i,"_",ID),
           label = NULL,

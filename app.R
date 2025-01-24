@@ -26,7 +26,9 @@ sapply(
 app_options <- list(
   theme = "md",
   dark = FALSE,
- # color = "white",
+  #preloader = TRUE,
+  # color = "white",
+  # fill = "green",
   navbar = list(
     # hideOnPageScroll = TRUE,
     mdCenterTitle = TRUE
@@ -35,7 +37,7 @@ app_options <- list(
 #### UI ----
 shinyApp(
   ui = f7Page(
-    title = "Aquatic Resources Field Forms",
+    title = "Mobile Field Forms",
     options = app_options,
     f7TabLayout(
       panels = tagList(
@@ -52,7 +54,7 @@ shinyApp(
         )
       ),
       navbar = f7Navbar(
-        title = "Aquatic Resources Field Forms",
+        title = h2("Mobile Field Forms"),
         leftPanel = FALSE,
         rightPanel = tagList(
           tags$a(
@@ -71,16 +73,20 @@ shinyApp(
           tabName = "tabAddSite",
           icon = f7Icon("plusminus_circle_fill"),
           active = TRUE,
-          f7BlockTitle(title = "Add or Remove Site Tab", size="medium") %>% f7Align(side = "center"),
+         # f7BlockTitle(title = "Add or Remove Site Tab", size="medium") %>% f7Align(side = "center"),
       f7Card(
             outline = TRUE,
             raised = TRUE,
-            #title = "ADD SITE",
+      f7Grid(
+        cols = 2,
+        h2(align = "center", strong("Resource Type")),
+        h2(align = "center", strong("Site ID"))
+        ),
       f7Grid(
         cols = 2,
       f7Select(
         "resource",
-        "Resource Type",
+        label = NULL,
         selected = "Rivers and Streams",
         choices = c("Rivers and Streams",
                     "Lakes and Ponds",
@@ -89,7 +95,7 @@ shinyApp(
         style = list(outline = TRUE)),
       f7Text(
         "site_id",
-        "Site ID",
+        label = NULL,
         placeholder = "Site ID",
         style = list(outline = TRUE)
       )),
@@ -99,15 +105,22 @@ shinyApp(
           f7Button("insertTab", "Insert", color = "blue"),
           f7Button("removeTab", "Remove", color = "red")
           )
-      ))))
+      )),
+      tags$ol(
+        h3(strong("Instructions:")),
+        tags$ul(
+          tags$li("Choose Resource Type, input a Site ID and click the", strong("Insert")," button."),
+          tags$li("A tab with the Site ID you input will be added to the navbar. In the tab relevant forms will be assembled for you."),
+          tags$li("Once field work is complete, click the ",strong("Export Data")," button to download a .zip file of all of the forms for that site."),
+          style="font-size: 16px"
+        ))
+      ))
     )
   ),
   server = function(input, output, session) {
     
-    
-    
     vals <- reactiveValues(count = 15)
-    observeEvent(input$AddLine, {
+    observeEvent(c(input$AddFish, input$AddLine), {
       vals$count <- vals$count + 5})
     
     # update mode
@@ -128,6 +141,7 @@ shinyApp(
         id = "tabs",
         position = "after",
         target = "tabAddSite",
+        select = TRUE,
         tab = f7Tab(
           tabName = ID,
           icon = f7Icon("plus_square_fill"),
@@ -141,7 +155,8 @@ shinyApp(
                 animated = TRUE,
                 swipeable = FALSE,
               formVerification(ID),
-              formWaterChemistry(ID)
+              formWaterChemistry(ID),
+              formFishCollection(ID) 
               )
             } else if(input$resource == "Lakes and Ponds"){
               f7Tabs(
@@ -150,7 +165,8 @@ shinyApp(
                 swipeable = FALSE,
                 formVerification(ID),
                 formWaterChemistry(ID),
-                formHydrographicProfile(ID)
+                formHydrographicProfile(ID),
+                formFishCollection(ID) 
               )
             } else if(input$resource == "Wetlands"){
               f7Tabs(
@@ -167,7 +183,8 @@ shinyApp(
                 swipeable = FALSE,
                 formVerification(ID),
                 formWaterChemistry(ID),
-                formHydrographicProfile(ID)
+                formHydrographicProfile(ID),
+                formFishCollection(ID) 
               )
             }
         )
@@ -200,6 +217,10 @@ shinyApp(
       source("data/dataHydrographicProfile.R", local = TRUE)$value
     })
     
+    FISHCOLLECTION <- reactive({
+      req(vals)
+      source("data/dataFishCollection.R", local = TRUE)$value
+    })
     
     
     ##### Download----
@@ -216,8 +237,9 @@ shinyApp(
          VERIFICATION <- paste0(tmp.path, "/VERIFICATION.csv")
          write.csv(WATERCHEMISTRY(), file.path(tmp.path, "WATERCHEMISTRY.csv"), row.names = FALSE)
          WATERCHEMISTRY <- paste0(tmp.path, "/WATERCHEMISTRY.csv")
-          
-         fs <- c(VERIFICATION, WATERCHEMISTRY)
+         write.csv(FISHCOLLECTION(), file.path(tmp.path, "FISHCOLLECTION.csv"), row.names = FALSE)
+         FISHCOLLECTION <- paste0(tmp.path, "/FISHCOLLECTION.csv") 
+         fs <- c(VERIFICATION, WATERCHEMISTRY, FISHCOLLECTION)
        } else if(input$resource == "Lakes and Ponds"){
          write.csv(VERIFICATION(), file.path(tmp.path, "VERIFICATION.csv"), row.names = FALSE)
          VERIFICATION <- paste0(tmp.path, "/VERIFICATION.csv")
@@ -225,8 +247,9 @@ shinyApp(
          WATERCHEMISTRY <- paste0(tmp.path, "/WATERCHEMISTRY.csv")
          write.csv(HYDROGRAPHICPROFILE(), file.path(tmp.path, "HYDROGRAPHICPROFILE.csv"), row.names = FALSE)
          HYDROGRAPHICPROFILE <- paste0(tmp.path, "/HYDROGRAPHICPROFILE.csv")
-        
-         fs <- c(VERIFICATION, WATERCHEMISTRY, HYDROGRAPHICPROFILE)
+         write.csv(FISHCOLLECTION(), file.path(tmp.path, "FISHCOLLECTION.csv"), row.names = FALSE)
+         FISHCOLLECTION <- paste0(tmp.path, "/FISHCOLLECTION.csv") 
+         fs <- c(VERIFICATION, WATERCHEMISTRY, HYDROGRAPHICPROFILE, FISHCOLLETION)
        } else if(input$resource == "Wetlands"){
          write.csv(VERIFICATION(), file.path(tmp.path, "VERIFICATION.csv"), row.names = FALSE)
          VERIFICATION <- paste0(tmp.path, "/VERIFICATION.csv")
@@ -241,8 +264,9 @@ shinyApp(
          WATERCHEMISTRY <- paste0(tmp.path, "/WATERCHEMISTRY.csv")
          write.csv(HYDROGRAPHICPROFILE(), file.path(tmp.path, "HYDROGRAPHICPROFILE.csv"), row.names = FALSE)
          HYDROGRAPHICPROFILE <- paste0(tmp.path, "/HYDROGRAPHICPROFILE.csv")
-         
-         fs <- c(VERIFICATION, WATERCHEMISTRY, HYDROGRAPHICPROFILE)
+         write.csv(FISHCOLLECTION(), file.path(tmp.path, "FISHCOLLECTION.csv"), row.names = FALSE)
+         FISHCOLLECTION <- paste0(tmp.path, "/FISHCOLLECTION.csv") 
+         fs <- c(VERIFICATION, WATERCHEMISTRY, HYDROGRAPHICPROFILE, FISHCOLLECTION)
        }
 
         zip::zipr(zipfile = file, files = fs)
