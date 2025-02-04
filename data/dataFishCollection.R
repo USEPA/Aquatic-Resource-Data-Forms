@@ -24,7 +24,8 @@ for (i in 1:N) {
                         Size_460mm = input[[paste0("fishgreat460_",i,"_", ID)]],
                         Vouch_Tag = input[[paste0("vouchertag_",i,"_", ID)]],
                         Vouch_Photo = input[[paste0("voucherphoto_",i,"_", ID)]],
-                        Vouch_Retain = input[[paste0("voucherretained_",i,"_", ID)]]
+                        Vouch_Retain = input[[paste0("voucherretained_",i,"_", ID)]],
+                        Comments = input[[paste0("fishComment_",i,"_", ID)]]
   )
 }
 

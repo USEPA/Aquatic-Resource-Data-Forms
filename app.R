@@ -1,8 +1,6 @@
 library(shiny)
 library(shinyMobile)
 library(zip)
-library(shinycssloaders)
-library(shinybusy)
 
 now_utc <- function() {
   now <- Sys.time()
@@ -138,7 +136,7 @@ shinyApp(
     observeEvent(input$tabs,{
       x <- c("Verification", "WaterChemistry", "FishCollection", "HydrographicProfile")
       ID <- trimws(sub(paste(x, collapse = "|"), "", input$forms))
-      updateF7Tabs(id="forms", selected = paste0("Verification", ID) )
+      updateF7Tabs(id="forms", selected = paste0("Verification", ID))
     })
 
     # Remove Site Tab
@@ -153,7 +151,18 @@ shinyApp(
       )
     })
     
-    #### Add Site Tab ----
+    
+    # progress bar ----
+    # observeEvent(input$insertTab, {
+    #   showF7Preloader(color = "green", type = "dialog", id = "loader")
+    #   
+    #     updateF7Preloader(
+    #       id = "loader",
+    #       title = "Building Forms...")
+    # })
+    
+    
+    # Add Site Tab ----
     observeEvent(input$insertTab, {
       
       # shinyMobile code does not work well with punctuation
@@ -165,7 +174,14 @@ shinyApp(
         need(!(ID %in% rv$tab_names),
              "Can't have two Site ID's."))
       }
-      #Adds tabnames to reactiveValue
+      # progress bar ----
+      showF7Preloader(type = "dialog", id = "loader")
+      
+      updateF7Preloader(
+        id = "loader",
+        title = "Building Forms...")
+      
+      #Adds tabnames to reactiveValue (for validate there are no duplicate site ids)
       rv$tab_names <- c(rv$tab_names, ID)
       
       insertF7Tab(
@@ -207,14 +223,17 @@ shinyApp(
               )
             } else if(input$resource == "Wetlands"){
               f7Tabs(
+                id="forms",
                 style = "toolbar",
                 animated = TRUE,
                 swipeable = FALSE,
                 formVerification(ID,RESOURCE),
-                formWaterChemistry(ID)
+                formWaterChemistry(ID),
+                formHydrology(ID)
               )
             } else if(input$resource == "Estuaries"){ 
               f7Tabs(
+                id="forms",
                 style = "toolbar",
                 animated = TRUE,
                 swipeable = FALSE,
@@ -226,9 +245,10 @@ shinyApp(
             }
         )
       ) 
+      hideF7Preloader(id = "loader")
     })
     
-    #### data Reactives ----
+    # data Reactives ----
     VERIFICATION <- reactive({
       source("data/dataVerification.R", local = TRUE)$value
     })
@@ -245,67 +265,9 @@ shinyApp(
       source("data/dataFishCollection.R", local = TRUE)$value
     })
     
-    
-    ##### Download----
-    output$download <- downloadHandler(
-      filename = function() {
-        shpdf <- input$filemap
-        paste0(input$tabs, "_Field_Data_", format(Sys.Date(), "%Y-%m-%d"),
-               ".zip", sep="")
-      },
-      content = function(file) {
-        tmp.path <- dirname(file)
-        x <- c("Verification","WaterChemistry","FishCollection","HydrographicProfile")
-        
-        ID <- trimws(sub(paste(x, collapse = "|"), "", input$forms))
-        if(input[[paste0("resource_", ID)]] == "Rivers and Streams"){
-         write.csv(VERIFICATION(), file.path(tmp.path, "VERIFICATION.csv"), row.names = FALSE)
-         VERIFICATION <- paste0(tmp.path, "/VERIFICATION.csv")
-         write.csv(WATERCHEMISTRY(), file.path(tmp.path, "WATERCHEMISTRY.csv"), row.names = FALSE)
-         WATERCHEMISTRY <- paste0(tmp.path, "/WATERCHEMISTRY.csv")
-         write.csv(FISHCOLLECTION(), file.path(tmp.path, "FISHCOLLECTION.csv"), row.names = FALSE)
-         FISHCOLLECTION <- paste0(tmp.path, "/FISHCOLLECTION.csv")
-         
-         fs <- c(VERIFICATION, WATERCHEMISTRY, FISHCOLLECTION)
-       } else if(input[[paste0("resource_", ID)]] == "Lakes and Ponds"){
-         write.csv(VERIFICATION(), file.path(tmp.path, "VERIFICATION.csv"), row.names = FALSE)
-         VERIFICATION <- paste0(tmp.path, "/VERIFICATION.csv")
-         write.csv(WATERCHEMISTRY(), file.path(tmp.path, "WATERCHEMISTRY.csv"), row.names = FALSE)
-         WATERCHEMISTRY <- paste0(tmp.path, "/WATERCHEMISTRY.csv")
-         write.csv(HYDROGRAPHICPROFILE(), file.path(tmp.path, "HYDROGRAPHICPROFILE.csv"), row.names = FALSE)
-         HYDROGRAPHICPROFILE <- paste0(tmp.path, "/HYDROGRAPHICPROFILE.csv")
-         write.csv(FISHCOLLECTION(), file.path(tmp.path, "FISHCOLLECTION.csv"), row.names = FALSE)
-         FISHCOLLECTION <- paste0(tmp.path, "/FISHCOLLECTION.csv") 
-         
-         fs <- c(VERIFICATION, WATERCHEMISTRY, HYDROGRAPHICPROFILE, FISHCOLLECTION)
-       } else if(input[[paste0("resource_", ID)]] == "Wetlands"){
-         write.csv(VERIFICATION(), file.path(tmp.path, "VERIFICATION.csv"), row.names = FALSE)
-         VERIFICATION <- paste0(tmp.path, "/VERIFICATION.csv")
-         write.csv(WATERCHEMISTRY(), file.path(tmp.path, "WATERCHEMISTRY.csv"), row.names = FALSE)
-         WATERCHEMISTRY <- paste0(tmp.path, "/WATERCHEMISTRY.csv")
-         
-         fs <- c(VERIFICATION, WATERCHEMISTRY)
-       } else if(input[[paste0("resource_", ID)]] == "Estuaries"){
-         write.csv(VERIFICATION(), file.path(tmp.path, "VERIFICATION.csv"), row.names = FALSE)
-         VERIFICATION <- paste0(tmp.path, "/VERIFICATION.csv")
-         write.csv(WATERCHEMISTRY(), file.path(tmp.path, "WATERCHEMISTRY.csv"), row.names = FALSE)
-         WATERCHEMISTRY <- paste0(tmp.path, "/WATERCHEMISTRY.csv")
-         write.csv(HYDROGRAPHICPROFILE(), file.path(tmp.path, "HYDROGRAPHICPROFILE.csv"), row.names = FALSE)
-         HYDROGRAPHICPROFILE <- paste0(tmp.path, "/HYDROGRAPHICPROFILE.csv")
-         write.csv(FISHCOLLECTION(), file.path(tmp.path, "FISHCOLLECTION.csv"), row.names = FALSE)
-         FISHCOLLECTION <- paste0(tmp.path, "/FISHCOLLECTION.csv") 
-         
-         fs <- c(VERIFICATION, WATERCHEMISTRY, HYDROGRAPHICPROFILE, FISHCOLLECTION)
-       }
-
-        zip::zipr(zipfile = file, files = fs)
-        if(file.exists(paste0(file, ".zip"))) {file.rename(paste0(file, ".zip"), file)}
-      },
-      contentType = "application/zip"
-    )
   
-# Insert UI forms ----
-## Fish Collection ----
+    # Insert UI forms ----
+    ## Fish Collection ----
     observeEvent(input[[paste0("Add", input$forms)]], {
       
        n <- input[[paste0("Add", input$forms)]][1] + 15
@@ -348,8 +310,67 @@ shinyApp(
       )
     })
     
+    # Export Data ----
+    output$download <- downloadHandler(
+      filename = function() {
+        shpdf <- input$filemap
+        paste0(input$tabs, "_Field_Data_", format(Sys.Date(), "%Y-%m-%d"),
+               ".zip", sep="")
+      },
+      content = function(file) {
+        tmp.path <- dirname(file)
+        x <- c("Verification","WaterChemistry","FishCollection","HydrographicProfile")
+        ID <- trimws(sub(paste(x, collapse = "|"), "", input$forms))
+        
+        if(input[[paste0("resource_", ID)]] == "Rivers and Streams"){
+          write.csv(VERIFICATION(), file.path(tmp.path, "VERIFICATION.csv"), row.names = FALSE)
+          VERIFICATION <- paste0(tmp.path, "/VERIFICATION.csv")
+          write.csv(WATERCHEMISTRY(), file.path(tmp.path, "WATERCHEMISTRY.csv"), row.names = FALSE)
+          WATERCHEMISTRY <- paste0(tmp.path, "/WATERCHEMISTRY.csv")
+          write.csv(FISHCOLLECTION(), file.path(tmp.path, "FISHCOLLECTION.csv"), row.names = FALSE)
+          FISHCOLLECTION <- paste0(tmp.path, "/FISHCOLLECTION.csv")
+          
+          fs <- c(VERIFICATION, WATERCHEMISTRY, FISHCOLLECTION)
+        } else if(input[[paste0("resource_", ID)]] == "Lakes and Ponds"){
+          write.csv(VERIFICATION(), file.path(tmp.path, "VERIFICATION.csv"), row.names = FALSE)
+          VERIFICATION <- paste0(tmp.path, "/VERIFICATION.csv")
+          write.csv(WATERCHEMISTRY(), file.path(tmp.path, "WATERCHEMISTRY.csv"), row.names = FALSE)
+          WATERCHEMISTRY <- paste0(tmp.path, "/WATERCHEMISTRY.csv")
+          write.csv(HYDROGRAPHICPROFILE(), file.path(tmp.path, "HYDROGRAPHICPROFILE.csv"), row.names = FALSE)
+          HYDROGRAPHICPROFILE <- paste0(tmp.path, "/HYDROGRAPHICPROFILE.csv")
+          write.csv(FISHCOLLECTION(), file.path(tmp.path, "FISHCOLLECTION.csv"), row.names = FALSE)
+          FISHCOLLECTION <- paste0(tmp.path, "/FISHCOLLECTION.csv") 
+          
+          fs <- c(VERIFICATION, WATERCHEMISTRY, HYDROGRAPHICPROFILE, FISHCOLLECTION)
+        } else if(input[[paste0("resource_", ID)]] == "Wetlands"){
+          write.csv(VERIFICATION(), file.path(tmp.path, "VERIFICATION.csv"), row.names = FALSE)
+          VERIFICATION <- paste0(tmp.path, "/VERIFICATION.csv")
+          write.csv(WATERCHEMISTRY(), file.path(tmp.path, "WATERCHEMISTRY.csv"), row.names = FALSE)
+          WATERCHEMISTRY <- paste0(tmp.path, "/WATERCHEMISTRY.csv")
+          
+          fs <- c(VERIFICATION, WATERCHEMISTRY)
+        } else if(input[[paste0("resource_", ID)]] == "Estuaries"){
+          write.csv(VERIFICATION(), file.path(tmp.path, "VERIFICATION.csv"), row.names = FALSE)
+          VERIFICATION <- paste0(tmp.path, "/VERIFICATION.csv")
+          write.csv(WATERCHEMISTRY(), file.path(tmp.path, "WATERCHEMISTRY.csv"), row.names = FALSE)
+          WATERCHEMISTRY <- paste0(tmp.path, "/WATERCHEMISTRY.csv")
+          write.csv(HYDROGRAPHICPROFILE(), file.path(tmp.path, "HYDROGRAPHICPROFILE.csv"), row.names = FALSE)
+          HYDROGRAPHICPROFILE <- paste0(tmp.path, "/HYDROGRAPHICPROFILE.csv")
+          write.csv(FISHCOLLECTION(), file.path(tmp.path, "FISHCOLLECTION.csv"), row.names = FALSE)
+          FISHCOLLECTION <- paste0(tmp.path, "/FISHCOLLECTION.csv") 
+          
+          fs <- c(VERIFICATION, WATERCHEMISTRY, HYDROGRAPHICPROFILE, FISHCOLLECTION)
+        }
+        
+        zip::zipr(zipfile = file, files = fs)
+        if(file.exists(paste0(file, ".zip"))) {file.rename(paste0(file, ".zip"), file)}
+      },
+      contentType = "application/zip"
+    )
     
     
+    
+
     
     }
   )

@@ -107,7 +107,7 @@ formFishCollection <- function(ID) {
         p(align = "center", strong("Voucher Tag #")),
         p(align = "center", strong("Voucher Photo")),
         p(align = "center", strong("Vouchers Retained")),
-        p(align = "center", strong(""))
+        p(align = "center", strong("Comments"))
       ),
       f7Grid(
         cols = 4,
@@ -129,6 +129,11 @@ formFishCollection <- function(ID) {
         label = NULL,
         placeholder = "XX",
         value="",
+        style = list(outline = TRUE)
+      ),
+      f7TextArea(
+        inputId = paste0("fishcomment_",i,"_",ID),
+        label = NULL,
         style = list(outline = TRUE)
       )
      )
