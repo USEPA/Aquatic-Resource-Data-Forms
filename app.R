@@ -265,50 +265,51 @@ shinyApp(
       source("data/dataFishCollection.R", local = TRUE)$value
     })
     
-  
+    
+    values <- reactiveValues(forms=0)
+   
     # Insert UI forms ----
-    ## Fish Collection ----
     observeEvent(input[[paste0("Add", input$forms)]], {
       
-       n <- input[[paste0("Add", input$forms)]][1] + 15
-       ID <- sub("FishCollection","", input$forms)
-       req(input$forms==paste0("FishCollection",ID))
+      if(!(input$forms %in% names(values$forms))){
+        values$forms[[paste0(input$forms)]] <- 1
+      }
       
-      insertUI(
-        selector = paste0("#Add",input$forms),
-        where = "beforeBegin",
-        ui = insertFishCollection(ID,n)
+      req(values$forms[[paste0(input$forms)]] == input[[paste0("Add", input$forms)]][1])
+      
+      str <- c("FishCollection", "WaterChemistry", "HydrographicProfile")
+      ID <- gsub(paste(str, collapse="|"), "", input$forms)
+
+      if(input$forms==paste0("FishCollection",ID)){
+        
+        n <- input[[paste0("Add", input$forms)]][1] + 15
+        insertUI(
+          selector = paste0("#Add",input$forms),
+          where = "beforeBegin",
+          ui = insertFishCollection(ID,n)
         )
+      } else if(input$forms==paste0("WaterChemistry",ID)){
+        
+        n <- input[[paste0("Add", input$forms)]][1] + 1
+        insertUI(
+          selector = paste0("#Add",input$forms),
+          where = "beforeBegin",
+          ui = insertWaterChemistry(ID,n)
+        )
+      } else if(input$forms==paste0("HydrographicProfile",ID)){
+        
+        n <- input[[paste0("Add", input$forms)]][1] + 15
+        insertUI(
+          selector = paste0("#Add",input$forms),
+          where = "beforeBegin",
+          ui = insertHydrographicProfile(ID,n)
+        )
+      }
+      
+      values$forms[[paste0(input$forms)]] <- values$forms[[paste0(input$forms)]] + 1
+      
       })
     
-    ## Water Chemistry ----
-    observeEvent(input[[paste0("Add", input$forms)]], {
-      
-      n <- input[[paste0("Add", input$forms)]][1] + 1
-      ID <- sub("WaterChemistry","", input$forms)
-      req(input$forms==paste0("WaterChemistry",ID))
-      
-      insertUI(
-        selector = paste0("#Add",input$forms),
-        where = "beforeBegin",
-        ui = insertWaterChemistry(ID,n)
-      )
-    })
-    
-    
-    ## Hydrographic Profile ----
-    observeEvent(input[[paste0("Add", input$forms)]], {
-      
-      n <- input[[paste0("Add", input$forms)]][1] + 1
-      ID <- sub("HydrographicProfile","", input$forms)
-      req(input$forms==paste0("HydrographicProfile",ID))
-      
-      insertUI(
-        selector = paste0("#Add",input$forms),
-        where = "beforeBegin",
-        ui = insertHydrographicProfile(ID,n)
-      )
-    })
     
     # Export Data ----
     output$download <- downloadHandler(
