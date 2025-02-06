@@ -1,0 +1,7 @@
+applications:
+- name: Mobile-Field-Forms
+  memory: 500M
+  disk_quota: 2G
+  buildpacks:
+    - r_buildpack
+  command: R -f shiny.R
