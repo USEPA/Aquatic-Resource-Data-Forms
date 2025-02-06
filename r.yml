@@ -2,5 +2,5 @@ packages:
 - cran_mirror: https://cloud.r-project.org
   num_threads: 2
   packages:
-    - name: shinymobile
+    - name: shinyMobile
     - name: zip
