@@ -2,7 +2,7 @@ formHydrology <- function(ID) {
   f7Tab(
     title = "Hydrology",
     tabName = paste0("Hydrology",ID),
-    icon = f7Icon("drop"),
+    icon = f7Icon("drop", style="font-size: 2rem"),
     f7BlockTitle(title = "Conditions at Assessment", size="large") %>% f7Align(side = "center"),
     f7Card(
       outline = TRUE,

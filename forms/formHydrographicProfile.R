@@ -2,7 +2,7 @@ formHydrographicProfile <- function(ID) {
   f7Tab(
     title = "Hydrographic Profile",
     tabName = paste0("HydrographicProfile",ID),
-    icon = f7Icon("flowchart"),
+    icon = f7Icon("flowchart", style="font-size: 2rem"),
     f7Card(
       outline = TRUE,
       raised = TRUE,

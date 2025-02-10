@@ -37,8 +37,9 @@ app_options <- list(
 #### UI ----
 shinyApp(
   ui = f7Page(
-    title = "Mobile Field Forms",
+    title = "Collector",
     options = app_options,
+    allowPWA = TRUE,
     f7TabLayout(
       panels = tagList(
         f7Panel(
@@ -54,7 +55,7 @@ shinyApp(
         )
       ),
       navbar = f7Navbar(
-        title = h2("Mobile Field Forms"),
+        title = h1("Collector", style="font-family: Cascadia Code Light"),
         leftPanel = FALSE,
         rightPanel = tagList(
           tags$a(
@@ -71,7 +72,7 @@ shinyApp(
      f7Tab(
           title = "Add Site",
           tabName = "tabAddSite",
-          icon = f7Icon("plusminus_circle_fill"),
+          icon = f7Icon("plusminus_circle_fill", style="font-size: 2rem"),
           active = TRUE,
          # f7BlockTitle(title = "Add or Remove Site Tab", size="medium") %>% f7Align(side = "center"),
       f7Card(
@@ -151,16 +152,7 @@ shinyApp(
       )
     })
     
-    
-    # progress bar ----
-    # observeEvent(input$insertTab, {
-    #   showF7Preloader(color = "green", type = "dialog", id = "loader")
-    #   
-    #     updateF7Preloader(
-    #       id = "loader",
-    #       title = "Building Forms...")
-    # })
-    
+
     
     # Add Site Tab ----
     observeEvent(input$insertTab, {
@@ -184,6 +176,16 @@ shinyApp(
       #Adds tabnames to reactiveValue (for validate there are no duplicate site ids)
       rv$tab_names <- c(rv$tab_names, ID)
       
+      ICON <- if(input$resource == "Rivers and Streams"){
+          icon("water", style="font-size: 2rem")
+      } else if(input$resource == "Lakes and Ponds"){
+          icon("ship", style="font-size: 2rem")
+      } else if(input$resource == "Wetlands"){
+          icon("tree", style="font-size: 2rem")
+      } else if(input$resource == "Estuaries"){ 
+          icon("sailboat", style="font-size: 2rem")
+      }
+      
       insertF7Tab(
         id = "tabs",
         position = "after",
@@ -191,7 +193,7 @@ shinyApp(
         select = FALSE,
         tab = f7Tab(
           tabName = ID,
-          icon = f7Icon("plus_square_fill"),
+          icon = ICON,
           #export data button to show when form is chosen (app is reliant on input$forms)
           conditionalPanel(
             condition = "input.forms &&
@@ -208,7 +210,8 @@ shinyApp(
                 swipeable = FALSE,
                 formVerification(ID,RESOURCE),
                 formWaterChemistry(ID),
-                formFishCollection(ID) 
+                formFishCollection(ID) ,
+                formHydrology(ID)
               )
             } else if(input$resource == "Lakes and Ponds"){
               f7Tabs(
@@ -274,7 +277,7 @@ shinyApp(
       if(!(input$forms %in% names(values$forms))){
         values$forms[[paste0(input$forms)]] <- 1
       }
-      
+      #prevents triggering when switching between forms
       req(values$forms[[paste0(input$forms)]] == input[[paste0("Add", input$forms)]][1])
       
       str <- c("FishCollection", "WaterChemistry", "HydrographicProfile")
@@ -305,9 +308,8 @@ shinyApp(
           ui = insertHydrographicProfile(ID,n)
         )
       }
-      
+      #Keeps track of how many times button is pressed for each ID and form
       values$forms[[paste0(input$forms)]] <- values$forms[[paste0(input$forms)]] + 1
-      
       })
     
     
@@ -370,6 +372,66 @@ shinyApp(
     )
     
     
+    
+    # Comments ----
+    # Fish Collection ----
+    fishval <- reactiveValues(forms=0)
+    lapply(1:100, function(i) {
+      observeEvent(input[[paste0("fishbutton_",gsub(paste("FishCollection", collapse="|"), "", input$forms),"_",i)]], {
+        ID <- gsub(paste("FishCollection", collapse="|"), "", input$forms)
+        n <- gsub(paste0("fishbutton_",ID,"_", collapse = "|"), "", paste0("fishbutton_",ID,"_",i))
+        
+        if(!(paste0("FishCollection",ID,"_",n) %in% names(fishval$forms))){
+          fishval$forms[[paste0(input$forms,"_",n)]] <- 1
+        }
+        #prevents triggering when switching between forms
+        req(fishval$forms[[paste0(input$forms,"_",n)]] == input[[paste0("fishbutton_",ID,"_",n)]][1])
+        
+      f7Popup(
+        id = paste0("fishpopup_",i,"_",ID),
+        title = paste0("Fish Comment ",i),
+        f7Block(
+          f7TextArea(inputId = paste0("fishcomment_",i,"_",ID),
+                     value="",
+                     label = NULL,
+                     style = list(outline = TRUE))
+        )
+      )
+      fishval$forms[[paste0(input$forms,"_",n)]] <- fishval$forms[[paste0(input$forms,"_",n)]] + 1
+      })
+    })
+    
+    # Water Chemistry ----
+    waterval <- reactiveValues(forms=0)
+    lapply(1:100, function(i) {
+      observeEvent(input[[paste0("chembutton_",gsub(paste("WaterChemistry", collapse="|"), "", input$forms),"_",i)]], {
+        ID <- gsub(paste("WaterChemistry", collapse="|"), "", input$forms)
+        n <- gsub(paste0("chembutton_",ID,"_", collapse = "|"), "", paste0("chembutton_",ID,"_",i))
+        
+        if(!(paste0("WaterChemistry",ID,"_",n) %in% names(waterval$forms))){
+          waterval$forms[[paste0(input$forms,"_",n)]] <- 1
+        }
+        #prevents triggering when switching between forms
+        req(waterval$forms[[paste0(input$forms,"_",n)]] == input[[paste0("chembutton_",ID,"_",n)]][1])
+        
+        f7Popup(
+          id = paste0("chempopup_",i,"_",ID),
+          title = paste0("Water Chemistry Comment ",i),
+          
+          f7Block(
+            f7TextArea(inputId = paste0("chemcomment_",i,"_",ID),
+                       value="",
+                       label = NULL,
+                       style = list(outline = TRUE))
+          )
+        )
+        waterval$forms[[paste0(input$forms,"_",n)]] <- waterval$forms[[paste0(input$forms,"_",n)]] + 1
+      })
+    })
+                 
+       
+      
+        
     
 
     

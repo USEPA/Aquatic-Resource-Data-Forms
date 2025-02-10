@@ -1,16 +1,21 @@
 x <- c("Verification","WaterChemistry","FishCollection","HydrographicProfile")
-ID <- trimws(sub(paste(x, collapse = "|"), "", input$forms))
+ID <- gsub(paste(x, collapse = "|"), "", input$forms)
 
 if(is.null(input[[paste0("AddFishCollection",ID)]][1])){
-  N <- 1
+  N <- 15
 } else {
   N <- input[[paste0("AddFishCollection",ID)]][1] + 15
 }
 
 xy <- vector("list", N) # create an empty list into which values are to be filled
 
-# run the loop N times and on each loop...
+# run the loop N times...
 for (i in 1:N) {
+  if(is.null(input[[paste0("fishcomment_",i,"_",ID)]])){
+    comment <- ""
+  } else{
+    comment <- input[[paste0("fishcomment_",i,"_",ID)]]
+  }
   
   # random number depends on the mean specified
   xy[[i]] <- data.frame(Site_ID = paste0(ID),
@@ -25,7 +30,7 @@ for (i in 1:N) {
                         Vouch_Tag = input[[paste0("vouchertag_",i,"_", ID)]],
                         Vouch_Photo = input[[paste0("voucherphoto_",i,"_", ID)]],
                         Vouch_Retain = input[[paste0("voucherretained_",i,"_", ID)]],
-                        Comments = input[[paste0("fishcomment_",i,"_", ID)]]
+                        Comment = comment
   )
 }
 

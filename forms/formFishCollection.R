@@ -2,7 +2,8 @@ formFishCollection <- function(ID) {
   f7Tab(
     title = "Fish Collection",
     tabName = paste0("FishCollection",ID),
-    icon = f7Icon("flowchart"),
+    icon = icon("fish-fins", style="font-size: 2rem"),
+    # HTML('<i class="fa-solid fa-fish-fins"></i>'),
     f7BlockTitle(title = "Fish Collection", size="large") %>% f7Align(side = "center"),
     lapply(1:15, function(i) {
     f7Card(
@@ -107,7 +108,7 @@ formFishCollection <- function(ID) {
         p(align = "center", strong("Voucher Tag #")),
         p(align = "center", strong("Voucher Photo")),
         p(align = "center", strong("Vouchers Retained")),
-        p(align = "center", strong("Comments"))
+        p(align = "center", strong(""))
       ),
       f7Grid(
         cols = 4,
@@ -131,13 +132,13 @@ formFishCollection <- function(ID) {
         value="",
         style = list(outline = TRUE)
       ),
-      f7TextArea(
-        inputId = paste0("fishcomment_",i,"_",ID),
-        label = NULL,
-        style = list(outline = TRUE)
+      #Notice difference in Button ID 
+      f7Button(paste0("fishbutton_",ID,"_",i), label=NULL, fill=FALSE,
+               icon = f7Icon("text_bubble_fill",
+                             style = "font-size: 45px;"))
       )
-     )
     )
     }),
     f7Button(paste0("AddFishCollection",ID), "Add Line", color = "blue")
   )}
+     

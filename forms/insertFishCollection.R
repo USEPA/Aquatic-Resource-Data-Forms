@@ -100,7 +100,7 @@ insertFishCollection <- function(ID,n) {
       p(align = "center", strong("Voucher Tag #")),
       p(align = "center", strong("Voucher Photo")),
       p(align = "center", strong("Vouchers Retained")),
-      p(align = "center", strong("Comments"))
+      p(align = "center", strong(""))
     ),
     f7Grid(
       cols = 4,
@@ -122,11 +122,10 @@ insertFishCollection <- function(ID,n) {
         placeholder = "XX",
         style = list(outline = TRUE)
       ),
-      f7TextArea(
-        inputId = paste0("fishcomment_",n,"_",ID),
-        label = NULL,
-        style = list(outline = TRUE)
-      )
+      #Notice difference in Button ID 
+      f7Button(paste0("fishbutton_",ID,"_",n), label=NULL, fill=FALSE,
+               icon = f7Icon("text_bubble_fill",
+                             style = "font-size: 45px;"))
     )
   )
 }

@@ -2,7 +2,7 @@ x <- c("Verification","WaterChemistry","FishCollection","HydrographicProfile")
 ID <- trimws(sub(paste(x, collapse = "|"), "", input$forms))
 
 if(is.null(input[[paste0("AddHydrographicProfile",ID)]][1])){
-  N <- 1
+  N <- 15
 } else {
   N <- input[[paste0("AddHydrographicProfile",ID)]][1] + 15
 }
