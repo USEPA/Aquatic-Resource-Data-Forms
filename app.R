@@ -8,6 +8,9 @@ now_utc <- function() {
   now
 }
 
+#Available Form IDs
+X <- c("Verification", "WaterChemistry", "FishCollection", "HydrographicProfile")
+
 # source modules
 e <- environment()
 path <- "forms/"
@@ -135,13 +138,24 @@ shinyApp(
     
     #Brings user back to Verification form when selecting new site
     observeEvent(input$tabs,{
-      x <- c("Verification", "WaterChemistry", "FishCollection", "HydrographicProfile")
-      ID <- trimws(sub(paste(x, collapse = "|"), "", input$forms))
+      
+      ID <- trimws(sub(paste(X, collapse = "|"), "", input$forms))
       updateF7Tabs(id="forms", selected = paste0("Verification", ID))
     })
 
     # Remove Site Tab
     observeEvent(input$removeTab, {
+    req(length(rv$tab_names)>0)
+    f7Dialog(
+      id = "confirm_dialog",
+      type = "confirm",
+      title = paste0("Permanently Remove ", input$site_id,"?"),
+      text = ""
+    )
+    })
+    
+    observeEvent(input$confirm_dialog, {
+      req(input$confirm_dialog==TRUE)
       ID <- sub("[[:punct:][:blank:]]+", "_", input$site_id)
       #Remove tabnames from reactiveValue
       rv$tab_names <- rv$tab_names[! rv$tab_names %in% ID]
@@ -151,8 +165,6 @@ shinyApp(
         target = ID
       )
     })
-    
-
     
     # Add Site Tab ----
     observeEvent(input$insertTab, {
@@ -280,9 +292,7 @@ shinyApp(
       #prevents triggering when switching between forms
       req(values$forms[[paste0(input$forms)]] == input[[paste0("Add", input$forms)]][1])
       
-      str <- c("FishCollection", "WaterChemistry", "HydrographicProfile")
-      ID <- gsub(paste(str, collapse="|"), "", input$forms)
-
+      ID <- gsub(paste(X, collapse="|"), "", input$forms)
       if(input$forms==paste0("FishCollection",ID)){
         
         n <- input[[paste0("Add", input$forms)]][1] + 15
@@ -313,6 +323,35 @@ shinyApp(
       })
     
     
+    # Comments ----
+    # This code will work for all forms to create a popup window for comments.
+    commentval <- reactiveValues(forms=0)
+    lapply(1:100, function(i) {
+      observeEvent(input[[paste0(input$forms,"_",i)]], {
+        ID <- gsub(paste(X, collapse="|"), "", input$forms)
+        n <- gsub(paste0(input$forms,"_", collapse = "|"), "", paste0(input$forms,"_",i))
+        
+        if(!(paste0(input$forms,"_",n) %in% names(commentval$forms))){
+          commentval$forms[[paste0(input$forms,"_",n)]] <- 1
+        }
+        #prevents triggering when switching between forms
+        req(commentval$forms[[paste0(input$forms,"_",n)]] == input[[paste0(input$forms,"_",n)]][1])
+        
+      f7Popup(
+        id = paste0(input$forms,"_popup_",i),
+        title = paste0("Comment ",i),
+        f7Block(
+          f7TextArea(inputId = paste0(input$forms,"_Comment_",i),
+                     value="",
+                     label = NULL,
+                     style = list(outline = TRUE))
+        )
+      )
+      commentval$forms[[paste0(input$forms,"_",n)]] <- commentval$forms[[paste0(input$forms,"_",n)]] + 1
+      })
+    })
+    
+    
     # Export Data ----
     output$download <- downloadHandler(
       filename = function() {
@@ -322,8 +361,7 @@ shinyApp(
       },
       content = function(file) {
         tmp.path <- dirname(file)
-        x <- c("Verification","WaterChemistry","FishCollection","HydrographicProfile")
-        ID <- trimws(sub(paste(x, collapse = "|"), "", input$forms))
+        ID <- trimws(sub(paste(X, collapse = "|"), "", input$forms))
         
         if(input[[paste0("resource_", ID)]] == "Rivers and Streams"){
           write.csv(VERIFICATION(), file.path(tmp.path, "VERIFICATION.csv"), row.names = FALSE)
@@ -370,69 +408,7 @@ shinyApp(
       },
       contentType = "application/zip"
     )
-    
-    
-    
-    # Comments ----
-    # Fish Collection ----
-    fishval <- reactiveValues(forms=0)
-    lapply(1:100, function(i) {
-      observeEvent(input[[paste0("fishbutton_",gsub(paste("FishCollection", collapse="|"), "", input$forms),"_",i)]], {
-        ID <- gsub(paste("FishCollection", collapse="|"), "", input$forms)
-        n <- gsub(paste0("fishbutton_",ID,"_", collapse = "|"), "", paste0("fishbutton_",ID,"_",i))
-        
-        if(!(paste0("FishCollection",ID,"_",n) %in% names(fishval$forms))){
-          fishval$forms[[paste0(input$forms,"_",n)]] <- 1
-        }
-        #prevents triggering when switching between forms
-        req(fishval$forms[[paste0(input$forms,"_",n)]] == input[[paste0("fishbutton_",ID,"_",n)]][1])
-        
-      f7Popup(
-        id = paste0("fishpopup_",i,"_",ID),
-        title = paste0("Fish Comment ",i),
-        f7Block(
-          f7TextArea(inputId = paste0("fishcomment_",i,"_",ID),
-                     value="",
-                     label = NULL,
-                     style = list(outline = TRUE))
-        )
-      )
-      fishval$forms[[paste0(input$forms,"_",n)]] <- fishval$forms[[paste0(input$forms,"_",n)]] + 1
-      })
-    })
-    
-    # Water Chemistry ----
-    waterval <- reactiveValues(forms=0)
-    lapply(1:100, function(i) {
-      observeEvent(input[[paste0("chembutton_",gsub(paste("WaterChemistry", collapse="|"), "", input$forms),"_",i)]], {
-        ID <- gsub(paste("WaterChemistry", collapse="|"), "", input$forms)
-        n <- gsub(paste0("chembutton_",ID,"_", collapse = "|"), "", paste0("chembutton_",ID,"_",i))
-        
-        if(!(paste0("WaterChemistry",ID,"_",n) %in% names(waterval$forms))){
-          waterval$forms[[paste0(input$forms,"_",n)]] <- 1
-        }
-        #prevents triggering when switching between forms
-        req(waterval$forms[[paste0(input$forms,"_",n)]] == input[[paste0("chembutton_",ID,"_",n)]][1])
-        
-        f7Popup(
-          id = paste0("chempopup_",i,"_",ID),
-          title = paste0("Water Chemistry Comment ",i),
-          
-          f7Block(
-            f7TextArea(inputId = paste0("chemcomment_",i,"_",ID),
-                       value="",
-                       label = NULL,
-                       style = list(outline = TRUE))
-          )
-        )
-        waterval$forms[[paste0(input$forms,"_",n)]] <- waterval$forms[[paste0(input$forms,"_",n)]] + 1
-      })
-    })
                  
-       
-      
-        
-    
 
     
     }

@@ -1,6 +1,10 @@
 insertHydrographicProfile <- function(ID,n) {
   f7Grid(
-    cols = 6,
+    cols = 7,
+    #Notice difference in Button ID 
+    f7Button(paste0("HydrographicProfile",ID,"_",n), label=NULL, fill=FALSE,
+             icon = f7Icon("text_bubble_fill",
+                           style = "font-size: 45px;")),
     div(style = "text-align: center;", 
         f7Toggle(
           inputId = paste0("ProfileUpcast_",n,"_",ID),

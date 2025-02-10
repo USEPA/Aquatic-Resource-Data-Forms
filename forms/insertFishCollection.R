@@ -123,7 +123,7 @@ insertFishCollection <- function(ID,n) {
         style = list(outline = TRUE)
       ),
       #Notice difference in Button ID 
-      f7Button(paste0("fishbutton_",ID,"_",n), label=NULL, fill=FALSE,
+      f7Button(paste0("FishCollection",ID,"_",n), label=NULL, fill=FALSE,
                icon = f7Icon("text_bubble_fill",
                              style = "font-size: 45px;"))
     )

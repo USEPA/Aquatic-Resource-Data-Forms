@@ -11,10 +11,10 @@ xy <- vector("list", N) # create an empty list into which values are to be fille
 
 # run the loop N times...
 for (i in 1:N) {
-  if(is.null(input[[paste0("chemcomment_",i,"_",ID)]])){
+  if(is.null(input[[paste0(input$forms,"_Comment_",i)]])){
     comment <- ""
   } else{
-    comment <- input[[paste0("chemcomment_",i,"_",ID)]]
+    comment <- input[[paste0(input$forms,"_Comment_",i)]]
   }
   
   xy[[i]] <- data.frame(Site_ID = paste0(ID),
@@ -37,7 +37,7 @@ for (i in 1:N) {
 # you can bind them together into one data.frame using do.call
 # rbind means they will be merged row-wise
 xy <- do.call(rbind, xy)
-xy[!(xy$Location=="" & xy$Depth=="" & xy$DO=="" & xy$pH=="" & xy$Conductivity=="" & xy$Temperature==""), ]
+xy[!(xy$Location=="" & xy$Depth=="" & xy$DO=="" & xy$pH=="" & xy$Conductivity=="" & xy$Temperature=="" & xy$Comments==""), ]
 
 
 

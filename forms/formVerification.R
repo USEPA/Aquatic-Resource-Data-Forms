@@ -143,24 +143,27 @@ formVerification <- function(ID,RESOURCE) {
           placeholder = "XXXXX XXXXX",
           style = list(outline = TRUE)
         )
-        ),
-        f7Grid(
-          cols = 2,
-          f7Text(
-            inputId = paste0("crewmember7_", ID),
-            label = NULL,
-            placeholder = "XXXXX XXXXX",
-            style = list(outline = TRUE)
-          ),
-          f7Text(
-            inputId = paste0("crewmember8_", ID),
-            label = NULL,
-            placeholder = "XXXXX XXXXX",
-            style = list(outline = TRUE)
-          )
         )
-      )
+      ),
+  f7BlockTitle(title = "Comments/Descriptions", size="large") %>% f7Align(side = "center"),
+  f7Card(
+    outline = TRUE,
+    raised = TRUE,
+    p(align = "left", strong("General Comments")),
+    f7TextArea(
+      inputId = paste0("generalComments_", ID),
+      label = NULL,
+      style = list(outline = TRUE)
+    ),
+    p(align = "left", strong("Directions to site")),
+    f7TextArea(
+      inputId = paste0("directions_", ID),
+      label = NULL,
+      style = list(outline = TRUE)
     )
+  )
+  )
+  
   }
 
      

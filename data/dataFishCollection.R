@@ -11,10 +11,10 @@ xy <- vector("list", N) # create an empty list into which values are to be fille
 
 # run the loop N times...
 for (i in 1:N) {
-  if(is.null(input[[paste0("fishcomment_",i,"_",ID)]])){
+  if(is.null(input[[paste0(input$forms,"_Comment_",i)]])){
     comment <- ""
   } else{
-    comment <- input[[paste0("fishcomment_",i,"_",ID)]]
+    comment <- input[[paste0(input$forms,"_Comment_",i)]]
   }
   
   # random number depends on the mean specified
@@ -30,7 +30,7 @@ for (i in 1:N) {
                         Vouch_Tag = input[[paste0("vouchertag_",i,"_", ID)]],
                         Vouch_Photo = input[[paste0("voucherphoto_",i,"_", ID)]],
                         Vouch_Retain = input[[paste0("voucherretained_",i,"_", ID)]],
-                        Comment = comment
+                        Comments = comment
   )
 }
 
@@ -40,7 +40,7 @@ for (i in 1:N) {
 # you can bind them together into one data.frame using do.call
 # rbind means they will be merged row-wise
 xy <- do.call(rbind, xy)
-xy[!(xy$Fish_Name=="" & xy$Hybrid==FALSE & xy$Introduced==FALSE & xy$Size_150mm== 0 & xy$Size_150_300mm== 0 & xy$Size_301_460mm==0 & xy$Size_460mm==0 & xy$Vouch_Tag=="" & xy$Vouch_Photo==FALSE & xy$Vouch_Retain==""), ]
+xy[!(xy$Fish_Name=="" & xy$Hybrid==FALSE & xy$Introduced==FALSE & xy$Size_150mm== 0 & xy$Size_150_300mm== 0 & xy$Size_301_460mm==0 & xy$Size_460mm==0 & xy$Vouch_Tag=="" & xy$Vouch_Photo==FALSE & xy$Vouch_Retain=="" & xy$Comments==""), ]
 
 
 

@@ -23,7 +23,7 @@ insertWaterChemistry <- function(ID,n) {
         style = list(outline = TRUE)
       ),
       #Notice difference in Button ID 
-      f7Button(paste0("chembutton_",ID,"_",n), label=NULL, fill=FALSE,
+      f7Button(paste0("WaterChemistry",ID,"_",n), label=NULL, fill=FALSE,
                icon = f7Icon("text_bubble_fill",
                              style = "font-size: 45px;"))
     ),
@@ -51,7 +51,7 @@ insertWaterChemistry <- function(ID,n) {
         style = list(outline = TRUE)
       ),
       f7Text(
-        inputId = paste0("DOChem_1_",n,"_",ID),
+        inputId = paste0("DOChem_",n,"_",ID),
         label = NULL,
         placeholder = "XX.X",
         style = list(outline = TRUE)
@@ -82,8 +82,8 @@ insertWaterChemistry <- function(ID,n) {
       f7Select(
         inputId = paste0("ConductivityUnits_",n,"_",ID),
         label = NULL,
-        choices = c("µS/cm", "µmhos/cm"),
-        selected = "µS/cm",
+        choices = c("uS/cm", "umhos/cm"),
+        selected = "uS/cm",
         width = NULL,
         style = list(outline = TRUE)
       ),
@@ -96,8 +96,8 @@ insertWaterChemistry <- function(ID,n) {
       f7Select(
         inputId = paste0("TemperatureUnits_",n,"_",ID),
         label = NULL,
-        choices = c("°C", "°F"),
-        selected = "mg/L",
+        choices = c("C", "F"),
+        selected = "C",
         width = NULL,
         style = list(outline = TRUE)
       ))
