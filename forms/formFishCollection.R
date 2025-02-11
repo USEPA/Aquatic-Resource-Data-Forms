@@ -1,9 +1,42 @@
 formFishCollection <- function(ID) {
   f7Tab(
-    title = "Fish Collection",
+    title = div(id=paste0("fishtitle",ID), HTML("<center>Fish</br>Collection</center>")),
     tabName = paste0("FishCollection",ID),
-    icon = icon("fish-fins", style="font-size: 2rem"),
-    # HTML('<i class="fa-solid fa-fish-fins"></i>'),
+    icon = div(id=paste0("fishbadge",ID), 
+      icon("fish-fins", style="font-size: 2rem"), 
+                      f7Badge(0, color="green")),
+    f7BlockTitle(title = "Fish Gear", size="large") %>% f7Align(side = "center"),
+    f7Card(
+      outline = TRUE,
+      raised = TRUE,
+      f7Grid(
+        cols = 2,
+        p(align = "center", strong("Primary Fishing Gear")),
+        p(align = "center", strong("Fishing Reach Length (m)")),
+      ),
+      f7Grid(
+        cols = 2,
+        f7Text(
+          inputId = paste0("FishGear_",ID),
+          label = NULL,
+          placeholder = "",
+          value="",
+          style = list(outline = TRUE)
+        ),
+        f7Text(
+          inputId = paste0("FishLength_",ID),
+          label = NULL,
+          placeholder = "",
+          value="",
+          style = list(outline = TRUE)
+        ),
+      ),
+      p(align = "center", strong("General Fishing Comments")),
+      f7TextArea(
+        inputId = paste0("FishGeneralComments_", ID),
+        label = NULL,
+        style = list(outline = TRUE)
+      )),
     f7BlockTitle(title = "Fish Collection", size="large") %>% f7Align(side = "center"),
     lapply(1:15, function(i) {
     f7Card(
@@ -39,7 +72,7 @@ formFishCollection <- function(ID) {
         value = FALSE
       ))),
       f7Grid(
-        cols = 1,
+        cols = 3,
         p(align = "center", strong("TALLY/COUNTS"))
       ),
       f7Grid(
@@ -52,52 +85,56 @@ formFishCollection <- function(ID) {
       f7Grid(
         cols = 4,
       f7Stepper(
-        inputId = paste0("fishless150_",i,"_",ID),
+        inputId = paste0("FishCollection",ID,"fishless150_",i),
         label = NULL,
         min = 0,
         max = 10000,
         value = 0,
         size = "small",
         wraps = FALSE,
+        color = "black",
         autorepeat = TRUE,
         rounded = FALSE,
         raised = TRUE,
         manual = FALSE
       ),
       f7Stepper(
-        inputId = paste0("fish300_",i,"_",ID),
+        inputId = paste0("FishCollection",ID,"fish300_",i),
         label = NULL,
         min = 0,
         max = 10000,
         value = 0,
         size = "small",
         wraps = FALSE,
+        color = "black",
         autorepeat = TRUE,
         rounded = FALSE,
         raised = TRUE,
         manual = FALSE
       ),
       f7Stepper(
-        inputId = paste0("fish460_",i,"_",ID),
+        inputId = paste0("FishCollection",ID,"fish460_",i),
         label = NULL,
         min = 0,
         max = 10000,
         value = 0,
         size = "small",
         wraps = FALSE,
+        color = "black",
         autorepeat = TRUE,
         rounded = FALSE,
         raised = TRUE,
         manual = FALSE
       ),
       f7Stepper(
-        inputId = paste0("fishgreat460_",i,"_",ID),
+        inputId = paste0("FishCollection",ID,"fishgreat460_",i),
         label = NULL,
         min = 0,
         max = 10000,
         value = 0,
         size = "small",
         wraps = FALSE,
+        color = "black",
         autorepeat = TRUE,
         rounded = FALSE,
         raised = TRUE,

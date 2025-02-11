@@ -44,7 +44,7 @@ insertFishCollection <- function(ID,n) {
     f7Grid(
       cols = 4,
       f7Stepper(
-        inputId = paste0("fishless150_",n,"_",ID),
+        inputId = paste0("FishCollection",ID,"fishless150_",n),
         label = NULL,
         min = 0,
         max = 10000,
@@ -57,7 +57,7 @@ insertFishCollection <- function(ID,n) {
         manual = FALSE
       ),
       f7Stepper(
-        inputId = paste0("fish300_",n,"_",ID),
+        inputId = paste0("FishCollection",ID,"fish300_",n),
         label = NULL,
         min = 0,
         max = 10000,
@@ -70,7 +70,7 @@ insertFishCollection <- function(ID,n) {
         manual = FALSE
       ),
       f7Stepper(
-        inputId = paste0("fish460_",n,"_",ID),
+        inputId = paste0("FishCollection",ID,"fish460_",n),
         label = NULL,
         min = 0,
         max = 10000,
@@ -83,7 +83,7 @@ insertFishCollection <- function(ID,n) {
         manual = FALSE
       ),
       f7Stepper(
-        inputId = paste0("fishgreat460_",n,"_",ID),
+        inputId = paste0("FishCollection",ID,"fishgreat460_",n),
         label = NULL,
         min = 0,
         max = 10000,

@@ -294,7 +294,6 @@ shinyApp(
       
       ID <- gsub(paste(X, collapse="|"), "", input$forms)
       if(input$forms==paste0("FishCollection",ID)){
-        
         n <- input[[paste0("Add", input$forms)]][1] + 15
         insertUI(
           selector = paste0("#Add",input$forms),
@@ -351,6 +350,55 @@ shinyApp(
       })
     })
     
+    # Fish Counter ----
+    fishval <- reactiveValues(val=0)
+    lapply(1:100, function(i) {
+      observeEvent(
+        c(input[[paste0(input$forms,"fishless150_",i)]],
+          input[[paste0(input$forms,"fish300_",i)]],
+          input[[paste0(input$forms,"fish460_",i)]],
+          input[[paste0(input$forms,"fishgreat460_",i)]]), {
+            
+            ID <- gsub(paste("FishCollection", collapse="|"), "", input$forms)
+            
+            removeUI(
+              selector = "div:has(> #txt)"
+            )
+            
+            if(!(input$forms %in% names(fishval$val))){
+              fishval$val[[paste0(input$forms)]] <- 0
+            }
+            if(is.null(input[[paste0("AddFishCollection",ID)]][1])){
+              N <- 15
+            } else {
+              N <- input[[paste0("AddFishCollection",ID)]][1] + 15
+            }
+            
+            my.sum = 0
+            for(i in 1:N){
+              current = input[[paste0(input$forms,"fishless150_",i)]] + input[[paste0(input$forms,"fish300_",i)]] +
+                input[[paste0(input$forms,"fish460_",i)]] + input[[paste0(input$forms,"fishgreat460_",i)]]
+              
+              # Update variable storing sum
+              my.sum = my.sum + current
+            }
+            req(fishval$val[[paste0(input$forms)]] != my.sum)
+            fishval$val[[paste0(input$forms)]] <- my.sum
+            
+            if(fishval$val[[paste0(input$forms)]] != 0){
+              removeUI(
+                selector = paste0("#fishbadge",ID)
+              )
+              insertUI(
+                selector = paste0("#fishtitle",ID),
+                where = "afterBegin",
+                ui = div(id=paste0("fishbadge",ID), 
+                         icon("fish-fins", style="font-size: 2rem"), 
+                         f7Badge(fishval$val[[paste0(input$forms)]], color="green"))
+              )
+            }
+          })
+    })
     
     # Export Data ----
     output$download <- downloadHandler(
@@ -409,6 +457,13 @@ shinyApp(
       contentType = "application/zip"
     )
                  
+    
+    
+   
+        
+      
+    
+    
 
     
     }

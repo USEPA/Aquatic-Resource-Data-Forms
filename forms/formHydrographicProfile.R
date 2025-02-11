@@ -1,9 +1,9 @@
 formHydrographicProfile <- function(ID) {
   f7Tab(
-    title = "Hydrographic Profile",
+    title = HTML("<center>Hydrographic</br>Profile</center>"),
     tabName = paste0("HydrographicProfile",ID),
     icon = f7Icon("flowchart", style="font-size: 2rem"),
-    f7BlockTitle(title = "Profile Unit", size="large") %>% f7Align(side = "left"),
+    f7BlockTitle(title = "Profile Units", size="large") %>% f7Align(side = "left"),
     f7Card(
       outline = TRUE,
       raised = TRUE,

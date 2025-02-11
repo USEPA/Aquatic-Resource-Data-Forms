@@ -1,6 +1,6 @@
 formWaterChemistry <- function(ID) {
   f7Tab(
-    title = "Water Chemistry",
+    title = HTML("<center>Water</br>Chemistry</center>"),
     tabName = paste0("WaterChemistry",ID),
     icon = icon("glass-water-droplet", style="font-size: 2rem"),
     f7BlockTitle(title = "In Situ Water Collection", size="large") %>% f7Align(side = "center"),
