@@ -43,6 +43,7 @@ insertFishCollection <- function(ID,n) {
     ),
     f7Grid(
       cols = 4,
+      div(style = "display: flex; justify-content: center;",
       f7Stepper(
         inputId = paste0("FishCollection",ID,"fishless150_",n),
         label = NULL,
@@ -55,7 +56,8 @@ insertFishCollection <- function(ID,n) {
         rounded = FALSE,
         raised = TRUE,
         manual = FALSE
-      ),
+      )),
+      div(style = "display: flex; justify-content: center;",
       f7Stepper(
         inputId = paste0("FishCollection",ID,"fish300_",n),
         label = NULL,
@@ -68,7 +70,8 @@ insertFishCollection <- function(ID,n) {
         rounded = FALSE,
         raised = TRUE,
         manual = FALSE
-      ),
+      )),
+      div(style = "display: flex; justify-content: center;",
       f7Stepper(
         inputId = paste0("FishCollection",ID,"fish460_",n),
         label = NULL,
@@ -81,7 +84,8 @@ insertFishCollection <- function(ID,n) {
         rounded = FALSE,
         raised = TRUE,
         manual = FALSE
-      ),
+      )),
+      div(style = "display: flex; justify-content: center;",
       f7Stepper(
         inputId = paste0("FishCollection",ID,"fishgreat460_",n),
         label = NULL,
@@ -94,7 +98,7 @@ insertFishCollection <- function(ID,n) {
         rounded = FALSE,
         raised = TRUE,
         manual = FALSE
-      )),
+      ))),
     f7Grid(
       cols = 4,
       p(align = "center", strong("Voucher Tag #")),

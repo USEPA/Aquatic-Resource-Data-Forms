@@ -9,7 +9,7 @@ now_utc <- function() {
 }
 
 #Available Form IDs
-X <- c("Verification", "WaterChemistry", "FishCollection", "HydrographicProfile")
+X <- c("Verification", "WaterChemistry", "FishCollection", "HydrographicProfile", "PlantCollection", "Export")
 
 # source modules
 e <- environment()
@@ -40,6 +40,7 @@ app_options <- list(
 #### UI ----
 shinyApp(
   ui = f7Page(
+    tags$link(rel = "stylesheet", type = "text/css", href = "style.css"),
     title = "Collector",
     options = app_options,
     allowPWA = TRUE,
@@ -138,7 +139,7 @@ shinyApp(
     
     #Brings user back to Verification form when selecting new site
     observeEvent(input$tabs,{
-      
+
       ID <- trimws(sub(paste(X, collapse = "|"), "", input$forms))
       updateF7Tabs(id="forms", selected = paste0("Verification", ID))
     })
@@ -207,12 +208,12 @@ shinyApp(
           tabName = ID,
           icon = ICON,
           #export data button to show when form is chosen (app is reliant on input$forms)
-          conditionalPanel(
-            condition = "input.forms &&
-                         input.forms.indexOf(input.tabs) > -1",
-          f7Block(
-            f7DownloadButton("download", "Export Data")
-          )),
+          # conditionalPanel(
+          #   condition = "input.forms &&
+          #                input.forms.indexOf(input.tabs) > -1",
+           f7Block(
+          #   f7DownloadButton("download", "Export Data")
+           ),
             #add the forms for each Resource Type here
             if(input$resource == "Rivers and Streams"){
               f7Tabs(
@@ -223,7 +224,8 @@ shinyApp(
                 formVerification(ID,RESOURCE),
                 formWaterChemistry(ID),
                 formFishCollection(ID) ,
-                formHydrology(ID)
+                formHydrology(ID),
+                formExport(ID)
               )
             } else if(input$resource == "Lakes and Ponds"){
               f7Tabs(
@@ -234,7 +236,8 @@ shinyApp(
                 formVerification(ID,RESOURCE),
                 formWaterChemistry(ID),
                 formHydrographicProfile(ID),
-                formFishCollection(ID) 
+                formFishCollection(ID),
+                formExport(ID)
               )
             } else if(input$resource == "Wetlands"){
               f7Tabs(
@@ -243,8 +246,10 @@ shinyApp(
                 animated = TRUE,
                 swipeable = FALSE,
                 formVerification(ID,RESOURCE),
+                formPlantCollection(ID),
                 formWaterChemistry(ID),
-                formHydrology(ID)
+                formHydrology(ID),
+                formExport(ID)
               )
             } else if(input$resource == "Estuaries"){ 
               f7Tabs(
@@ -255,7 +260,8 @@ shinyApp(
                 formVerification(ID,RESOURCE),
                 formWaterChemistry(ID),
                 formHydrographicProfile(ID),
-                formFishCollection(ID) 
+                formFishCollection(ID),
+                formExport(ID) 
               )
             }
         )
@@ -278,6 +284,10 @@ shinyApp(
      
     FISHCOLLECTION <- reactive({
       source("data/dataFishCollection.R", local = TRUE)$value
+    })
+    
+    PLANTCOLLECTION <- reactive({
+      source("data/dataPlantCollection.R", local = TRUE)$value
     })
     
     
@@ -315,6 +325,14 @@ shinyApp(
           selector = paste0("#Add",input$forms),
           where = "beforeBegin",
           ui = insertHydrographicProfile(ID,n)
+        ) 
+      } else if(input$forms==paste0("PlantCollection",ID)){
+        
+        n <- input[[paste0("Add", input$forms)]][1] + 20
+        insertUI(
+          selector = paste0("#Add",input$forms),
+          where = "beforeBegin",
+          ui = insertPlantCollection(ID,n)
         )
       }
       #Keeps track of how many times button is pressed for each ID and form
@@ -350,6 +368,7 @@ shinyApp(
       })
     })
     
+    
     # Fish Counter ----
     fishval <- reactiveValues(val=0)
     lapply(1:100, function(i) {
@@ -360,10 +379,6 @@ shinyApp(
           input[[paste0(input$forms,"fishgreat460_",i)]]), {
             
             ID <- gsub(paste("FishCollection", collapse="|"), "", input$forms)
-            
-            removeUI(
-              selector = "div:has(> #txt)"
-            )
             
             if(!(input$forms %in% names(fishval$val))){
               fishval$val[[paste0(input$forms)]] <- 0
@@ -400,11 +415,43 @@ shinyApp(
           })
     })
     
+    # Tree Data ----
+    treeval <- reactiveValues(val=0)
+    lapply(1:100, function(i) {
+      observeEvent(input[[paste0("Tree",input$forms,"_",i)]], {
+        ID <- gsub(paste("PlantCollection", collapse="|"), "", input$forms)
+        n <- gsub(paste0(input$forms,"_", collapse = "|"), "", paste0(input$forms,"_",i))
+        
+        if(!(paste0("Tree",input$forms,"_",n) %in% names(treeval$val))){
+          treeval$val[[paste0("Tree",input$forms,"_",n)]] <- 1
+        }
+        #prevents triggering when switching between forms
+        req(treeval$val[[paste0("Tree",input$forms,"_",n)]] == input[[paste0("Tree",input$forms,"_",n)]][1])
+        
+        f7Popup(
+          id = paste0(input$forms,"_tree_",i),
+          title = "Tree Species Data",
+          page = TRUE,
+          insertTreeData(ID,n)
+        )
+        treeval$val[[paste0("Tree",input$forms,"_",n)]] <- treeval$val[[paste0("Tree",input$forms,"_",n)]] + 1
+      })
+    })
+    
+    
+    observe({
+      print(input$tabs)
+      print(input$forms)
+    })
+    
+    
     # Export Data ----
     output$download <- downloadHandler(
       filename = function() {
         shpdf <- input$filemap
-        paste0(input$tabs, "_Field_Data_", format(Sys.Date(), "%Y-%m-%d"),
+        print(input$tabs)
+        print(input$forms)
+        paste0(gsub(paste(X, collapse = "|"), "", input$forms), "_Field_Data_", format(Sys.Date(), "%Y-%m-%d"),
                ".zip", sep="")
       },
       content = function(file) {
@@ -436,8 +483,10 @@ shinyApp(
           VERIFICATION <- paste0(tmp.path, "/VERIFICATION.csv")
           write.csv(WATERCHEMISTRY(), file.path(tmp.path, "WATERCHEMISTRY.csv"), row.names = FALSE)
           WATERCHEMISTRY <- paste0(tmp.path, "/WATERCHEMISTRY.csv")
+          write.csv(PLANTCOLLECTION(), file.path(tmp.path, "PLANTCOLLECTION.csv"), row.names = FALSE)
+          PLANTCOLLECTION <- paste0(tmp.path, "/PLANTCOLLECTION.csv")
           
-          fs <- c(VERIFICATION, WATERCHEMISTRY)
+          fs <- c(VERIFICATION, WATERCHEMISTRY, PLANTCOLLECTION)
         } else if(input[[paste0("resource_", ID)]] == "Estuaries"){
           write.csv(VERIFICATION(), file.path(tmp.path, "VERIFICATION.csv"), row.names = FALSE)
           VERIFICATION <- paste0(tmp.path, "/VERIFICATION.csv")
@@ -459,9 +508,7 @@ shinyApp(
                  
     
     
-   
-        
-      
+  
     
     
 

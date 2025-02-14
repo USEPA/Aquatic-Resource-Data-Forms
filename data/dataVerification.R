@@ -1,5 +1,4 @@
-x <- c("Verification","WaterChemistry","FishCollection","HydrographicProfile")
-ID <- trimws(sub(paste(x, collapse = "|"), "", input$forms))
+ID <- trimws(sub(paste(X, collapse = "|"), "", input$forms))
 
 
 data.frame(

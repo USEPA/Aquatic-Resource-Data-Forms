@@ -72,7 +72,7 @@ formFishCollection <- function(ID) {
         value = FALSE
       ))),
       f7Grid(
-        cols = 3,
+        cols = 1,
         p(align = "center", strong("TALLY/COUNTS"))
       ),
       f7Grid(
@@ -84,6 +84,7 @@ formFishCollection <- function(ID) {
       ),
       f7Grid(
         cols = 4,
+        div(style = "display: flex; justify-content: center;",
       f7Stepper(
         inputId = paste0("FishCollection",ID,"fishless150_",i),
         label = NULL,
@@ -97,7 +98,8 @@ formFishCollection <- function(ID) {
         rounded = FALSE,
         raised = TRUE,
         manual = FALSE
-      ),
+      )),
+      div(style = "display: flex; justify-content: center;",
       f7Stepper(
         inputId = paste0("FishCollection",ID,"fish300_",i),
         label = NULL,
@@ -111,7 +113,8 @@ formFishCollection <- function(ID) {
         rounded = FALSE,
         raised = TRUE,
         manual = FALSE
-      ),
+      )),
+      div(style = "display: flex; justify-content: center;",
       f7Stepper(
         inputId = paste0("FishCollection",ID,"fish460_",i),
         label = NULL,
@@ -125,7 +128,8 @@ formFishCollection <- function(ID) {
         rounded = FALSE,
         raised = TRUE,
         manual = FALSE
-      ),
+      )),
+      div(style = "display: flex; justify-content: center;",
       f7Stepper(
         inputId = paste0("FishCollection",ID,"fishgreat460_",i),
         label = NULL,
@@ -139,7 +143,7 @@ formFishCollection <- function(ID) {
         rounded = FALSE,
         raised = TRUE,
         manual = FALSE
-      )),
+      ))),
       f7Grid(
         cols = 4,
         p(align = "center", strong("Voucher Tag #")),

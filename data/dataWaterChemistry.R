@@ -1,5 +1,4 @@
-x <- c("Verification","WaterChemistry","FishCollection","HydrographicProfile")
-ID <- gsub(paste(x, collapse = "|"), "", input$forms)
+ID <- gsub(paste(X, collapse = "|"), "", input$forms)
 
 if(is.null(input[[paste0("AddWaterChemistry",ID)]][1])){
   N <- 1
