@@ -1,6 +1,7 @@
 library(shiny)
 library(shinyMobile)
 library(zip)
+library(openxlsx)
 
 now_utc <- function() {
   now <- Sys.time()
@@ -199,6 +200,16 @@ shinyApp(
           icon("sailboat", style="font-size: 2rem")
       }
       
+      FC <- if(input$resource == "Rivers and Streams"){
+        c("Verification", "Water Chemistry", "Fish Collection")
+      } else if(input$resource == "Lakes and Ponds"){
+        c("Verification", "Water Chemistry", "Hydrographic Profile", "Fish Collection")
+      } else if(input$resource == "Wetlands"){
+        c("Verification", "Water Chemistry", "Plant Collection", "Hydrology")
+      } else if(input$resource == "Estuaries"){ 
+        c("Verification", "Water Chemistry", "Hydrographic Profile", "Fish Collection")
+      }
+      
       insertF7Tab(
         id = "tabs",
         position = "after",
@@ -225,7 +236,7 @@ shinyApp(
                 formWaterChemistry(ID),
                 formFishCollection(ID) ,
                 formHydrology(ID),
-                formExport(ID)
+                formExport(ID,FC)
               )
             } else if(input$resource == "Lakes and Ponds"){
               f7Tabs(
@@ -237,7 +248,7 @@ shinyApp(
                 formWaterChemistry(ID),
                 formHydrographicProfile(ID),
                 formFishCollection(ID),
-                formExport(ID)
+                formExport(ID,FC)
               )
             } else if(input$resource == "Wetlands"){
               f7Tabs(
@@ -249,9 +260,9 @@ shinyApp(
                 formPlantCollection(ID),
                 formWaterChemistry(ID),
                 formHydrology(ID),
-                formExport(ID)
+                formExport(ID,FC)
               )
-            } else if(input$resource == "Estuaries"){ 
+            } else if(input$resource == "Estuaries"){
               f7Tabs(
                 id="forms",
                 style = "toolbar",
@@ -261,7 +272,7 @@ shinyApp(
                 formWaterChemistry(ID),
                 formHydrographicProfile(ID),
                 formFishCollection(ID),
-                formExport(ID) 
+                formExport(ID, FC) 
               )
             }
         )
@@ -290,6 +301,7 @@ shinyApp(
       source("data/dataPlantCollection.R", local = TRUE)$value
     })
     
+
     
     values <- reactiveValues(forms=0)
    
@@ -438,72 +450,85 @@ shinyApp(
       })
     })
     
-    
-    observe({
-      print(input$tabs)
-      print(input$forms)
-    })
-    
-    
+
     # Export Data ----
     output$download <- downloadHandler(
       filename = function() {
-        shpdf <- input$filemap
-        print(input$tabs)
-        print(input$forms)
-        paste0(gsub(paste(X, collapse = "|"), "", input$forms), "_Field_Data_", format(Sys.Date(), "%Y-%m-%d"),
-               ".zip", sep="")
+        if(input[[paste0("exportchoice", gsub(paste(X, collapse = "|"), "", input$forms))]] == 1){
+          paste0(gsub(paste(X, collapse = "|"), "", input$forms), "_Field_Data_", format(Sys.Date(), "%Y-%m-%d"),
+                 ".zip", sep="")
+        } else {
+          paste0(gsub(paste(X, collapse = "|"), "", input$forms), "_Field_Data_", format(Sys.Date(), "%Y-%m-%d"),
+                 ".xlsx", sep="")
+        }
       },
       content = function(file) {
-        tmp.path <- dirname(file)
         ID <- trimws(sub(paste(X, collapse = "|"), "", input$forms))
         
+        if(input[[paste0("exportchoice", gsub(paste(X, collapse = "|"), "", input$forms))]] == 1){
+        tmp.path <- dirname(file)
+        # Verification and Water Chemistry are in all resource types
+          write.csv(VERIFICATION(), file.path(tmp.path, "Verification.csv"), row.names = FALSE)
+          write.csv(WATERCHEMISTRY(), file.path(tmp.path, "Water Chemistry.csv"), row.names = FALSE)
         if(input[[paste0("resource_", ID)]] == "Rivers and Streams"){
-          write.csv(VERIFICATION(), file.path(tmp.path, "VERIFICATION.csv"), row.names = FALSE)
-          VERIFICATION <- paste0(tmp.path, "/VERIFICATION.csv")
-          write.csv(WATERCHEMISTRY(), file.path(tmp.path, "WATERCHEMISTRY.csv"), row.names = FALSE)
-          WATERCHEMISTRY <- paste0(tmp.path, "/WATERCHEMISTRY.csv")
-          write.csv(FISHCOLLECTION(), file.path(tmp.path, "FISHCOLLECTION.csv"), row.names = FALSE)
-          FISHCOLLECTION <- paste0(tmp.path, "/FISHCOLLECTION.csv")
-          
-          fs <- c(VERIFICATION, WATERCHEMISTRY, FISHCOLLECTION)
+          write.csv(FISHCOLLECTION(), file.path(tmp.path, "Fish Collection.csv"), row.names = FALSE)
         } else if(input[[paste0("resource_", ID)]] == "Lakes and Ponds"){
-          write.csv(VERIFICATION(), file.path(tmp.path, "VERIFICATION.csv"), row.names = FALSE)
-          VERIFICATION <- paste0(tmp.path, "/VERIFICATION.csv")
-          write.csv(WATERCHEMISTRY(), file.path(tmp.path, "WATERCHEMISTRY.csv"), row.names = FALSE)
-          WATERCHEMISTRY <- paste0(tmp.path, "/WATERCHEMISTRY.csv")
-          write.csv(HYDROGRAPHICPROFILE(), file.path(tmp.path, "HYDROGRAPHICPROFILE.csv"), row.names = FALSE)
-          HYDROGRAPHICPROFILE <- paste0(tmp.path, "/HYDROGRAPHICPROFILE.csv")
-          write.csv(FISHCOLLECTION(), file.path(tmp.path, "FISHCOLLECTION.csv"), row.names = FALSE)
-          FISHCOLLECTION <- paste0(tmp.path, "/FISHCOLLECTION.csv") 
-          
-          fs <- c(VERIFICATION, WATERCHEMISTRY, HYDROGRAPHICPROFILE, FISHCOLLECTION)
+          write.csv(HYDROGRAPHICPROFILE(), file.path(tmp.path, "Hydrographic Profile.csv"), row.names = FALSE)
+          write.csv(FISHCOLLECTION(), file.path(tmp.path, "Fish Collection.csv"), row.names = FALSE)
         } else if(input[[paste0("resource_", ID)]] == "Wetlands"){
-          write.csv(VERIFICATION(), file.path(tmp.path, "VERIFICATION.csv"), row.names = FALSE)
-          VERIFICATION <- paste0(tmp.path, "/VERIFICATION.csv")
-          write.csv(WATERCHEMISTRY(), file.path(tmp.path, "WATERCHEMISTRY.csv"), row.names = FALSE)
-          WATERCHEMISTRY <- paste0(tmp.path, "/WATERCHEMISTRY.csv")
-          write.csv(PLANTCOLLECTION(), file.path(tmp.path, "PLANTCOLLECTION.csv"), row.names = FALSE)
-          PLANTCOLLECTION <- paste0(tmp.path, "/PLANTCOLLECTION.csv")
-          
-          fs <- c(VERIFICATION, WATERCHEMISTRY, PLANTCOLLECTION)
+          write.csv(PLANTCOLLECTION(), file.path(tmp.path, "Plant Collection.csv"), row.names = FALSE)
         } else if(input[[paste0("resource_", ID)]] == "Estuaries"){
-          write.csv(VERIFICATION(), file.path(tmp.path, "VERIFICATION.csv"), row.names = FALSE)
-          VERIFICATION <- paste0(tmp.path, "/VERIFICATION.csv")
-          write.csv(WATERCHEMISTRY(), file.path(tmp.path, "WATERCHEMISTRY.csv"), row.names = FALSE)
-          WATERCHEMISTRY <- paste0(tmp.path, "/WATERCHEMISTRY.csv")
-          write.csv(HYDROGRAPHICPROFILE(), file.path(tmp.path, "HYDROGRAPHICPROFILE.csv"), row.names = FALSE)
-          HYDROGRAPHICPROFILE <- paste0(tmp.path, "/HYDROGRAPHICPROFILE.csv")
-          write.csv(FISHCOLLECTION(), file.path(tmp.path, "FISHCOLLECTION.csv"), row.names = FALSE)
-          FISHCOLLECTION <- paste0(tmp.path, "/FISHCOLLECTION.csv") 
-          
-          fs <- c(VERIFICATION, WATERCHEMISTRY, HYDROGRAPHICPROFILE, FISHCOLLECTION)
+          write.csv(HYDROGRAPHICPROFILE(), file.path(tmp.path, "Hydrographic Profile.csv"), row.names = FALSE)
+          write.csv(FISHCOLLECTION(), file.path(tmp.path, "Fish Collection.csv"), row.names = FALSE)
+        }
+        
+        fs <- c()
+        for(i in input[[paste0("formchoice",ID)]]) {
+          new <- paste0(tmp.path,"/",i,".csv")
+          fs <- append(new, fs)
         }
         
         zip::zipr(zipfile = file, files = fs)
         if(file.exists(paste0(file, ".zip"))) {file.rename(paste0(file, ".zip"), file)}
-      },
-      contentType = "application/zip"
+        } else {
+            wb <- createWorkbook(file)
+            addWorksheet(wb, "Verification")
+            addWorksheet(wb, "Water Chemistry")
+            writeData(wb, x = VERIFICATION(), sheet = "Verification")
+            writeData(wb, x = WATERCHEMISTRY(), sheet = "Water Chemistry")
+          if(input[[paste0("resource_", ID)]] == "Rivers and Streams"){
+            addWorksheet(wb, "Fish Collection")
+            writeData(wb, x = FISHCOLLECTION(), sheet = "Fish Collection")
+            fs <- c("Verification", "Water Chemistry", "Fish Collection")
+            fs <- fs [! fs %in% input[[paste0("formchoice",ID)]]] 
+            
+          } else if(input[[paste0("resource_", ID)]] == "Lakes and Ponds"){
+            addWorksheet(wb, "Fish Collection")
+            addWorksheet(wb, "Hydrographic Profile")
+            writeData(wb, x = FISHCOLLECTION(), sheet = "Fish Collection")
+            writeData(wb, x = HYDROGRAPHICPROFILE(), sheet = "Hydrographic Profile")
+            fs <- c("Verification", "Water Chemistry", "Fish Collection", "Hydrographic Profile")
+            fs <- fs [! fs %in% input[[paste0("formchoice",ID)]]] 
+          } else if(input[[paste0("resource_", ID)]] == "Wetlands"){
+            addWorksheet(wb, "Plant Collection")
+            writeData(wb, x = PLANTCOLLECTION(), sheet = "Plant Collection")
+            fs <- c("Verification", "Water Chemistry", "Plant Collection")
+            fs <- fs [! fs %in% input[[paste0("formchoice",ID)]]] 
+          } else if(input[[paste0("resource_", ID)]] == "Estuaries"){
+            addWorksheet(wb, "Fish Collection")
+            addWorksheet(wb, "Hydrographic Profile")
+            writeData(wb, x = FISHCOLLECTION(), sheet = "Fish Collection")
+            writeData(wb, x = HYDROGRAPHICPROFILE(), sheet = "Hydrographic Profile")
+            fs <- c("Verification", "Water Chemistry", "Fish Collection", "Hydrographic Profile")
+            fs <- fs [! fs %in% input[[paste0("formchoice",ID)]]] 
+          }
+            
+            for(i in fs){
+              removeWorksheet(wb,i)
+            }
+          saveWorkbook(wb, file)
+        }
+      }
     )
                  
     

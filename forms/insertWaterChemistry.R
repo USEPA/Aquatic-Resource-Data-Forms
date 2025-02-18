@@ -4,10 +4,10 @@ insertWaterChemistry <- function(ID,n) {
     raised = TRUE,
     f7Grid(
       cols = 3,
-      p(align = "center", strong(paste0("Location ",n)),
+      p(align = "center", strong(paste0("Location (",n,")"))),
       p(align = "center", strong("pH")),
       p(align = "center", strong(""))
-    )),
+    ),
     f7Grid(
       cols = 3,
       f7Text(

@@ -72,7 +72,7 @@ formVerification <- function(ID,RESOURCE) {
       f7Text(
         inputId = paste0("longitude_", ID),
         label = NULL,
-        placeholder = "XX.XXXX",
+        placeholder = "-XX.XXXX",
         style = list(outline = TRUE)
         )
       )

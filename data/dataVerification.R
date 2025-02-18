@@ -3,9 +3,9 @@ ID <- trimws(sub(paste(X, collapse = "|"), "", input$forms))
 
 data.frame(
   Site_ID = input[[paste0("siteId_", ID)]],
+  Site_Name = input[[paste0("siteName_", ID)]],
   Resource = input[[paste0("resource_", ID)]],
   Date_Collected = input[[paste0("dateCol_", ID)]],
-  Site_Name = input[[paste0("siteName_", ID)]],
   Latitude = input[[paste0("latitude_", ID)]],
   Longitude = input[[paste0("longitude_", ID)]],
   Crew_Leader = input[[paste0("crewlead_", ID)]],
