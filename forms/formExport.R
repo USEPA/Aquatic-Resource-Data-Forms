@@ -1,6 +1,6 @@
 formExport<- function(ID,FC) {
   f7Tab(
-    title = "Export",
+    title = "Export Data",
     tabName = paste0("Export",ID),
     icon = icon("download", style="font-size: 2rem"),
   f7Block(

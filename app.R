@@ -79,7 +79,6 @@ shinyApp(
           tabName = "tabAddSite",
           icon = f7Icon("plusminus_circle_fill", style="font-size: 2rem"),
           active = TRUE,
-         # f7BlockTitle(title = "Add or Remove Site Tab", size="medium") %>% f7Align(side = "center"),
       f7Card(
             outline = TRUE,
             raised = TRUE,
@@ -117,8 +116,8 @@ shinyApp(
         h3(strong("Instructions:"))),
         tags$ul(
           tags$li("Choose Resource Type, input a Site ID and click the", strong("Insert")," button."),
-          tags$li("A tab with the Site ID you input will be added to the navbar. In the tab relevant forms will be assembled for you."),
-          tags$li("Once field work is complete, click the ",strong("Export Data")," button to download a .zip file of all of the forms for that site."),
+          tags$li("A tab with the Site ID you input will be added to the navbar. In the tab, relevant forms will be assembled for you."),
+          tags$li("Once field work is complete, navigate to the", strong("Export Data"),"tab to download the forms for that site."),
           style="font-size: 16px"
         ))
       ))
@@ -190,24 +189,19 @@ shinyApp(
       #Adds tabnames to reactiveValue (for validate there are no duplicate site ids)
       rv$tab_names <- c(rv$tab_names, ID)
       
-      ICON <- if(input$resource == "Rivers and Streams"){
-          icon("water", style="font-size: 2rem")
+      # Resource type Icons and export choices
+      if(input$resource == "Rivers and Streams"){
+        ICON <- icon("water", style="font-size: 2rem")
+        FC <- c("Verification", "Water Chemistry", "Fish Collection")
       } else if(input$resource == "Lakes and Ponds"){
-          icon("ship", style="font-size: 2rem")
+        ICON <- icon("ship", style="font-size: 2rem")
+        FC <- c("Verification", "Water Chemistry", "Hydrographic Profile", "Fish Collection")
       } else if(input$resource == "Wetlands"){
-          icon("tree", style="font-size: 2rem")
+        ICON <- icon("tree", style="font-size: 2rem")
+        FC <- c("Verification", "Water Chemistry", "Plant Collection", "Hydrology")
       } else if(input$resource == "Estuaries"){ 
-          icon("sailboat", style="font-size: 2rem")
-      }
-      
-      FC <- if(input$resource == "Rivers and Streams"){
-        c("Verification", "Water Chemistry", "Fish Collection")
-      } else if(input$resource == "Lakes and Ponds"){
-        c("Verification", "Water Chemistry", "Hydrographic Profile", "Fish Collection")
-      } else if(input$resource == "Wetlands"){
-        c("Verification", "Water Chemistry", "Plant Collection", "Hydrology")
-      } else if(input$resource == "Estuaries"){ 
-        c("Verification", "Water Chemistry", "Hydrographic Profile", "Fish Collection")
+        ICON <- icon("sailboat", style="font-size: 2rem")
+        FC <- c("Verification", "Water Chemistry", "Hydrographic Profile", "Fish Collection")
       }
       
       insertF7Tab(
@@ -218,12 +212,7 @@ shinyApp(
         tab = f7Tab(
           tabName = ID,
           icon = ICON,
-          #export data button to show when form is chosen (app is reliant on input$forms)
-          # conditionalPanel(
-          #   condition = "input.forms &&
-          #                input.forms.indexOf(input.tabs) > -1",
            f7Block(
-          #   f7DownloadButton("download", "Export Data")
            ),
             #add the forms for each Resource Type here
             if(input$resource == "Rivers and Streams"){
