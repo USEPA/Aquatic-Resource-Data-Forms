@@ -45,8 +45,26 @@ shinyApp(
     title = "Collector",
     options = app_options,
     allowPWA = TRUE,
-    f7TabLayout(
-      panels = tagList(
+    f7SplitLayout(
+      sidebar = f7Panel(
+        title = "Sites",
+        side = "left",
+        effect = "push",
+        options = list(
+          visibleBreakpoint = 1024
+        ),
+        f7PanelMenu(
+          id = "tabs",
+          strong = TRUE,
+          f7PanelItem(
+            title = "Add Site",
+            tabName = "tabAddSite",
+            icon = f7Icon("plusminus_circle_fill", style="font-size: 2rem"),
+            active = TRUE
+          )
+        )
+      ),
+      panel = tagList(
         f7Panel(
           title = "Options",
           side = "right",
@@ -61,7 +79,7 @@ shinyApp(
       ),
       navbar = f7Navbar(
         title = h1("Collector", style="font-family: Cascadia Code Light"),
-        leftPanel = FALSE,
+        leftPanel = TRUE,
         rightPanel = tagList(
           tags$a(
             class = "link icon-only panel-open",
@@ -70,64 +88,67 @@ shinyApp(
           )
         )
       ),
-      f7Tabs(
-        animated = FALSE,
-        swipeable = FALSE,
-        id = "tabs",
-     f7Tab(
-          title = "Add Site",
-          tabName = "tabAddSite",
-          icon = f7Icon("plusminus_circle_fill", style="font-size: 2rem"),
-          active = TRUE,
-      f7Card(
-            outline = TRUE,
-            raised = TRUE,
-      f7Grid(
-        cols = 2,
-        h2(align = "center", strong("Resource Type")),
-        h2(align = "center", strong("Site ID"))
-        ),
-      f7Grid(
-        cols = 2,
-      f7Select(
-        "resource",
-        label = NULL,
-        selected = "Rivers and Streams",
-        choices = c("Rivers and Streams",
-                    "Lakes and Ponds",
-                    "Wetlands",
-                    "Estuaries"),
-        style = list(outline = TRUE)),
-      f7Text(
-        "site_id",
-        label = NULL,
-        placeholder = "Site ID",
-        style = list(outline = TRUE)
-      )),
-      f7Grid(
-        cols = 2,
-        f7Segment(
-          f7Button("insertTab", "Insert", color = "blue"),
-          f7Button("removeTab", "Remove", color = "red")
+      # main content
+          f7Items(
+            f7Item(
+              tabName = "tabAddSite",
+              f7Card(
+                outline = TRUE,
+                raised = TRUE,
+                f7Grid(
+                  cols = 2,
+                  h2(align = "center", strong("Resource Type")),
+                  h2(align = "center", strong("Site ID"))
+                ),
+                f7Grid(
+                  cols = 2,
+                  f7Select(
+                    "resource",
+                    label = NULL,
+                    selected = "Rivers and Streams",
+                    choices = c("Rivers and Streams",
+                                "Lakes and Ponds",
+                                "Wetlands",
+                                "Estuaries"),
+                    style = list(outline = TRUE)),
+                  f7Text(
+                    "site_id",
+                    label = NULL,
+                    placeholder = "Site ID",
+                    style = list(outline = TRUE)
+                  )),
+                f7Grid(
+                  cols = 2,
+                  f7Segment(
+                    f7Button("insertTab", "Insert", color = "blue"),
+                    f7Button("removeTab", "Remove", color = "red")
+                  )
+                )),
+              tags$ol(
+                div(id="instructions",
+                    h3(strong("Instructions:"))),
+                tags$ul(
+                  tags$li("Choose Resource Type, input a Site ID and click the", strong("Insert")," button."),
+                  tags$li("A tab with the Site ID you input will be added to the navbar. In the tab, relevant forms will be assembled for you."),
+                  tags$li("Once field work is complete, navigate to the", strong("Export Data"),"tab to download the forms for that site."),
+                  style="font-size: 16px"
+                ))
+            )
           )
-      )),
-      tags$ol(
-        div(id="instructions",
-        h3(strong("Instructions:"))),
-        tags$ul(
-          tags$li("Choose Resource Type, input a Site ID and click the", strong("Insert")," button."),
-          tags$li("A tab with the Site ID you input will be added to the navbar. In the tab, relevant forms will be assembled for you."),
-          tags$li("Once field work is complete, navigate to the", strong("Export Data"),"tab to download the forms for that site."),
-          style="font-size: 16px"
-        ))
-      ))
     )
-  ),
+    
+    
+    
+    
+    
+    
+    
+    ),
   server = function(input, output, session) {
     
     
     rv <- reactiveValues(tab_names=character(0))
-    
+
     # update mode
     observeEvent(input$dark, ignoreInit = TRUE, {
       updateF7App(
@@ -136,13 +157,16 @@ shinyApp(
         )
       )
     })
+
     
     #Brings user back to Verification form when selecting new site
-    observeEvent(input$tabs,{
-
-      ID <- trimws(sub(paste(X, collapse = "|"), "", input$forms))
-      updateF7Tabs(id="forms", selected = paste0("Verification", ID))
-    })
+    # observeEvent(input$tabs,{
+    #   print(input$tabs)
+    #   print(input$forms)
+    #   ID <- trimws(sub(paste(X, collapse = "|"), "", input$forms))
+    #   print(ID)
+    #   updateF7Tabs(id="forms", selected = paste0("Verification", ID))
+    # })
 
     # Remove Site Tab
     observeEvent(input$removeTab, {
@@ -154,26 +178,26 @@ shinyApp(
       text = ""
     )
     })
-    
+
     observeEvent(input$confirm_dialog, {
       req(input$confirm_dialog==TRUE)
       ID <- sub("[[:punct:][:blank:]]+", "_", input$site_id)
       #Remove tabnames from reactiveValue
       rv$tab_names <- rv$tab_names[! rv$tab_names %in% ID]
       
-      removeF7Tab(
-        id = "tabs",
-        target = ID
+      removeUI(
+        selector = paste0("#Panel",ID),
+        multiple = TRUE
       )
     })
-    
+
     # Add Site Tab ----
     observeEvent(input$insertTab, {
-      
+
       # shinyMobile code does not work well with punctuation
       ID <- sub("[[:punct:][:blank:]]+", "_", input$site_id)
       RESOURCE <- input$resource
-      
+
       if(input$insertTab > 1){
       validate(
         need(!(ID %in% rv$tab_names),
@@ -181,14 +205,14 @@ shinyApp(
       }
       # progress bar ----
       showF7Preloader(type = "dialog", id = "loader")
-      
+
       updateF7Preloader(
         id = "loader",
         title = "Building Forms...")
-      
+
       #Adds tabnames to reactiveValue (for validate there are no duplicate site ids)
       rv$tab_names <- c(rv$tab_names, ID)
-      
+
       # Resource type Icons and export choices
       if(input$resource == "Rivers and Streams"){
         ICON <- icon("water", style="font-size: 2rem")
@@ -199,81 +223,88 @@ shinyApp(
       } else if(input$resource == "Wetlands"){
         ICON <- icon("tree", style="font-size: 2rem")
         FC <- c("Verification", "Water Chemistry", "Plant Collection", "Hydrology")
-      } else if(input$resource == "Estuaries"){ 
+      } else if(input$resource == "Estuaries"){
         ICON <- icon("sailboat", style="font-size: 2rem")
         FC <- c("Verification", "Water Chemistry", "Hydrographic Profile", "Fish Collection")
       }
-      
-      insertF7Tab(
-        id = "tabs",
-        position = "after",
-        target = "tabAddSite",
-        select = FALSE,
-        tab = f7Tab(
-          tabName = ID,
-          icon = ICON,
-           f7Block(
-           ),
-            #add the forms for each Resource Type here
-            if(input$resource == "Rivers and Streams"){
-              f7Tabs(
-                id="forms",
-                style = "toolbar",
-                animated = TRUE,
-                swipeable = FALSE,
-                formVerification(ID,RESOURCE),
-                formWaterChemistry(ID),
-                formFishCollection(ID) ,
-                formHydrology(ID),
-                formExport(ID,FC)
-              )
-            } else if(input$resource == "Lakes and Ponds"){
-              f7Tabs(
-                id="forms",
-                style = "toolbar",
-                animated = TRUE,
-                swipeable = FALSE,
-                formVerification(ID,RESOURCE),
-                formWaterChemistry(ID),
-                formHydrographicProfile(ID),
-                formFishCollection(ID),
-                formExport(ID,FC)
-              )
-            } else if(input$resource == "Wetlands"){
-              f7Tabs(
-                id="forms",
-                style = "toolbar",
-                animated = TRUE,
-                swipeable = FALSE,
-                formVerification(ID,RESOURCE),
-                formPlantCollection(ID),
-                formWaterChemistry(ID),
-                formHydrology(ID),
-                formExport(ID,FC)
-              )
-            } else if(input$resource == "Estuaries"){
-              f7Tabs(
-                id="forms",
-                style = "toolbar",
-                animated = TRUE,
-                swipeable = FALSE,
-                formVerification(ID,RESOURCE),
-                formWaterChemistry(ID),
-                formHydrographicProfile(ID),
-                formFishCollection(ID),
-                formExport(ID, FC) 
-              )
-            }
+
+      insertUI(
+        selector = "#tabs",
+        where = "afterEnd",
+        ui = div(id = paste0("Panel",ID),
+                 f7PanelItem(
+                   tabName = paste0("tab",ID),
+                   title = ID,
+                   icon = ICON,
+                 )
         )
-      ) 
+      )
+        
+      
+      insertUI(
+        selector = "#tabAddSite",
+        where = "beforeBegin",
+        ui = f7Item(
+          tabName = paste0("tab",ID),
+                if(input$resource == "Rivers and Streams"){
+                  f7Tabs(
+                    id="forms",
+                    style = "toolbar",
+                    animated = TRUE,
+                    swipeable = FALSE,
+                    formVerification(ID,RESOURCE),
+                    formWaterChemistry(ID),
+                    formFishCollection(ID) ,
+                    formHydrology(ID),
+                    formExport(ID,FC)
+                  )
+                } else if(input$resource == "Lakes and Ponds"){
+                  f7Tabs(
+                    id="forms",
+                    style = "toolbar",
+                    animated = TRUE,
+                    swipeable = FALSE,
+                    formVerification(ID,RESOURCE),
+                    formWaterChemistry(ID),
+                    formHydrographicProfile(ID),
+                    formFishCollection(ID),
+                    formExport(ID,FC)
+                  )
+                } else if(input$resource == "Wetlands"){
+                  f7Tabs(
+                    id="forms",
+                    style = "toolbar",
+                    animated = TRUE,
+                    swipeable = FALSE,
+                    formVerification(ID,RESOURCE),
+                    formPlantCollection(ID),
+                    formWaterChemistry(ID),
+                    formHydrology(ID),
+                    formExport(ID,FC)
+                  )
+                } else if(input$resource == "Estuaries"){
+                  f7Tabs(
+                    id="forms",
+                    style = "toolbar",
+                    animated = TRUE,
+                    swipeable = FALSE,
+                    formVerification(ID,RESOURCE),
+                    formWaterChemistry(ID),
+                    formHydrographicProfile(ID),
+                    formFishCollection(ID),
+                    formExport(ID,FC)
+                  )
+                }
+            )
+          )
       hideF7Preloader(id = "loader")
     })
-    
+
     # data Reactives ----
     VERIFICATION <- reactive({
       source("data/dataVerification.R", local = TRUE)$value
     })
-    
+
     WATERCHEMISTRY <- reactive({
       source("data/dataWaterChemistry.R", local = TRUE)$value
     })
@@ -281,28 +312,28 @@ shinyApp(
     HYDROGRAPHICPROFILE <- reactive({
       source("data/dataHydrographicProfile.R", local = TRUE)$value
     })
-     
+
     FISHCOLLECTION <- reactive({
       source("data/dataFishCollection.R", local = TRUE)$value
     })
-    
+
     PLANTCOLLECTION <- reactive({
       source("data/dataPlantCollection.R", local = TRUE)$value
     })
-    
 
-    
+
+
     values <- reactiveValues(forms=0)
-   
+
     # Insert UI forms ----
     observeEvent(input[[paste0("Add", input$forms)]], {
-      
+
       if(!(input$forms %in% names(values$forms))){
         values$forms[[paste0(input$forms)]] <- 1
       }
       #prevents triggering when switching between forms
       req(values$forms[[paste0(input$forms)]] == input[[paste0("Add", input$forms)]][1])
-      
+
       ID <- gsub(paste(X, collapse="|"), "", input$forms)
       if(input$forms==paste0("FishCollection",ID)){
         n <- input[[paste0("Add", input$forms)]][1] + 15
@@ -312,7 +343,7 @@ shinyApp(
           ui = insertFishCollection(ID,n)
         )
       } else if(input$forms==paste0("WaterChemistry",ID)){
-        
+
         n <- input[[paste0("Add", input$forms)]][1] + 1
         insertUI(
           selector = paste0("#Add",input$forms),
@@ -320,15 +351,15 @@ shinyApp(
           ui = insertWaterChemistry(ID,n)
         )
       } else if(input$forms==paste0("HydrographicProfile",ID)){
-        
+
         n <- input[[paste0("Add", input$forms)]][1] + 15
         insertUI(
           selector = paste0("#Add",input$forms),
           where = "beforeBegin",
           ui = insertHydrographicProfile(ID,n)
-        ) 
+        )
       } else if(input$forms==paste0("PlantCollection",ID)){
-        
+
         n <- input[[paste0("Add", input$forms)]][1] + 20
         insertUI(
           selector = paste0("#Add",input$forms),
@@ -339,8 +370,8 @@ shinyApp(
       #Keeps track of how many times button is pressed for each ID and form
       values$forms[[paste0(input$forms)]] <- values$forms[[paste0(input$forms)]] + 1
       })
-    
-    
+
+
     # Comments ----
     # This code will work for all forms to create a popup window for comments.
     commentval <- reactiveValues(forms=0)
@@ -348,13 +379,13 @@ shinyApp(
       observeEvent(input[[paste0(input$forms,"_",i)]], {
         ID <- gsub(paste(X, collapse="|"), "", input$forms)
         n <- gsub(paste0(input$forms,"_", collapse = "|"), "", paste0(input$forms,"_",i))
-        
+
         if(!(paste0(input$forms,"_",n) %in% names(commentval$forms))){
           commentval$forms[[paste0(input$forms,"_",n)]] <- 1
         }
         #prevents triggering when switching between forms
         req(commentval$forms[[paste0(input$forms,"_",n)]] == input[[paste0(input$forms,"_",n)]][1])
-        
+
       f7Popup(
         id = paste0(input$forms,"_popup_",i),
         title = paste0("Comment ",i),
@@ -368,8 +399,8 @@ shinyApp(
       commentval$forms[[paste0(input$forms,"_",n)]] <- commentval$forms[[paste0(input$forms,"_",n)]] + 1
       })
     })
-    
-    
+
+
     # Fish Counter ----
     fishval <- reactiveValues(val=0)
     lapply(1:100, function(i) {
@@ -378,9 +409,9 @@ shinyApp(
           input[[paste0(input$forms,"fish300_",i)]],
           input[[paste0(input$forms,"fish460_",i)]],
           input[[paste0(input$forms,"fishgreat460_",i)]]), {
-            
+
             ID <- gsub(paste("FishCollection", collapse="|"), "", input$forms)
-            
+
             if(!(input$forms %in% names(fishval$val))){
               fishval$val[[paste0(input$forms)]] <- 0
             }
@@ -389,18 +420,18 @@ shinyApp(
             } else {
               N <- input[[paste0("AddFishCollection",ID)]][1] + 15
             }
-            
+
             my.sum = 0
             for(i in 1:N){
               current = input[[paste0(input$forms,"fishless150_",i)]] + input[[paste0(input$forms,"fish300_",i)]] +
                 input[[paste0(input$forms,"fish460_",i)]] + input[[paste0(input$forms,"fishgreat460_",i)]]
-              
+
               # Update variable storing sum
               my.sum = my.sum + current
             }
             req(fishval$val[[paste0(input$forms)]] != my.sum)
             fishval$val[[paste0(input$forms)]] <- my.sum
-            
+
             if(fishval$val[[paste0(input$forms)]] != 0){
               removeUI(
                 selector = paste0("#fishbadge",ID)
@@ -408,27 +439,27 @@ shinyApp(
               insertUI(
                 selector = paste0("#fishtitle",ID),
                 where = "afterBegin",
-                ui = div(id=paste0("fishbadge",ID), 
-                         icon("fish-fins", style="font-size: 2rem"), 
+                ui = div(id=paste0("fishbadge",ID),
+                         icon("fish-fins", style="font-size: 2rem"),
                          f7Badge(fishval$val[[paste0(input$forms)]], color="green"))
               )
             }
           })
     })
-    
+
     # Tree Data ----
     treeval <- reactiveValues(val=0)
     lapply(1:100, function(i) {
       observeEvent(input[[paste0("Tree",input$forms,"_",i)]], {
         ID <- gsub(paste("PlantCollection", collapse="|"), "", input$forms)
         n <- gsub(paste0(input$forms,"_", collapse = "|"), "", paste0(input$forms,"_",i))
-        
+
         if(!(paste0("Tree",input$forms,"_",n) %in% names(treeval$val))){
           treeval$val[[paste0("Tree",input$forms,"_",n)]] <- 1
         }
         #prevents triggering when switching between forms
         req(treeval$val[[paste0("Tree",input$forms,"_",n)]] == input[[paste0("Tree",input$forms,"_",n)]][1])
-        
+
         f7Popup(
           id = paste0(input$forms,"_tree_",i),
           title = "Tree Species Data",
@@ -438,7 +469,7 @@ shinyApp(
         treeval$val[[paste0("Tree",input$forms,"_",n)]] <- treeval$val[[paste0("Tree",input$forms,"_",n)]] + 1
       })
     })
-    
+
 
     # Export Data ----
     output$download <- downloadHandler(
@@ -453,7 +484,7 @@ shinyApp(
       },
       content = function(file) {
         ID <- trimws(sub(paste(X, collapse = "|"), "", input$forms))
-        
+
         if(input[[paste0("exportchoice", gsub(paste(X, collapse = "|"), "", input$forms))]] == 1){
         tmp.path <- dirname(file)
         # Verification and Water Chemistry are in all resource types
@@ -470,13 +501,13 @@ shinyApp(
           write.csv(HYDROGRAPHICPROFILE(), file.path(tmp.path, "Hydrographic Profile.csv"), row.names = FALSE)
           write.csv(FISHCOLLECTION(), file.path(tmp.path, "Fish Collection.csv"), row.names = FALSE)
         }
-        
+
         fs <- c()
         for(i in input[[paste0("formchoice",ID)]]) {
           new <- paste0(tmp.path,"/",i,".csv")
           fs <- append(new, fs)
         }
-        
+
         zip::zipr(zipfile = file, files = fs)
         if(file.exists(paste0(file, ".zip"))) {file.rename(paste0(file, ".zip"), file)}
         } else {
@@ -489,29 +520,29 @@ shinyApp(
             addWorksheet(wb, "Fish Collection")
             writeData(wb, x = FISHCOLLECTION(), sheet = "Fish Collection")
             fs <- c("Verification", "Water Chemistry", "Fish Collection")
-            fs <- fs [! fs %in% input[[paste0("formchoice",ID)]]] 
-            
+            fs <- fs [! fs %in% input[[paste0("formchoice",ID)]]]
           } else if(input[[paste0("resource_", ID)]] == "Lakes and Ponds"){
             addWorksheet(wb, "Fish Collection")
             addWorksheet(wb, "Hydrographic Profile")
             writeData(wb, x = FISHCOLLECTION(), sheet = "Fish Collection")
             writeData(wb, x = HYDROGRAPHICPROFILE(), sheet = "Hydrographic Profile")
             fs <- c("Verification", "Water Chemistry", "Fish Collection", "Hydrographic Profile")
-            fs <- fs [! fs %in% input[[paste0("formchoice",ID)]]] 
+            fs <- fs [! fs %in% input[[paste0("formchoice",ID)]]]
           } else if(input[[paste0("resource_", ID)]] == "Wetlands"){
             addWorksheet(wb, "Plant Collection")
             writeData(wb, x = PLANTCOLLECTION(), sheet = "Plant Collection")
             fs <- c("Verification", "Water Chemistry", "Plant Collection")
-            fs <- fs [! fs %in% input[[paste0("formchoice",ID)]]] 
+            fs <- fs [! fs %in% input[[paste0("formchoice",ID)]]]
           } else if(input[[paste0("resource_", ID)]] == "Estuaries"){
             addWorksheet(wb, "Fish Collection")
             addWorksheet(wb, "Hydrographic Profile")
             writeData(wb, x = FISHCOLLECTION(), sheet = "Fish Collection")
             writeData(wb, x = HYDROGRAPHICPROFILE(), sheet = "Hydrographic Profile")
             fs <- c("Verification", "Water Chemistry", "Fish Collection", "Hydrographic Profile")
-            fs <- fs [! fs %in% input[[paste0("formchoice",ID)]]] 
+            fs <- fs [! fs %in% input[[paste0("formchoice",ID)]]]
           }
-            
+
+
             for(i in fs){
               removeWorksheet(wb,i)
             }
@@ -519,8 +550,8 @@ shinyApp(
         }
       }
     )
-                 
-    
+
+
     
   
     
