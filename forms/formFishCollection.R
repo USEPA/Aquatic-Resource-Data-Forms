@@ -73,7 +73,7 @@ formFishCollection <- function(ID) {
       ))),
       f7Grid(
         cols = 1,
-        p(align = "center", strong("TALLY/COUNTS"))
+        p(align = "center", strong("TOTAL LENGTH TALLY/COUNTS"))
       ),
       f7Grid(
         cols = 4,

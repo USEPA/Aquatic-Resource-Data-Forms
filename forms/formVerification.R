@@ -85,7 +85,12 @@ formVerification <- function(ID,RESOURCE) {
     f7Grid(
       cols = 2,
       p(align = "center", strong("Crew Leader")),
-      p(align = "center", strong(""))
+      conditionalPanel(
+        condition = 'input.resource == "Wetlands"',
+      p(align = "center", strong("Botanist"))),
+      conditionalPanel(
+        condition = 'input.resource != "Wetlands"',
+      p(align = "center", strong("Fish Lead")))
     ),
     f7Grid(
       cols = 2,
@@ -93,9 +98,23 @@ formVerification <- function(ID,RESOURCE) {
         inputId = paste0("crewlead_", ID),
         label = NULL,
         placeholder = "XXXXX XXXXX",
+        style = list(outline = TRUE)),
+      conditionalPanel(
+        condition = 'input.resource == "Wetlands"',
+      f7Text(
+        inputId = paste0("botanist_", ID),
+        label = NULL,
+        placeholder = "XXXXX XXXXX",
         style = list(outline = TRUE)
-      )
-    ),
+      )),
+      conditionalPanel(
+        condition = 'input.resource != "Wetlands"',
+      f7Text(
+        inputId = paste0("fishlead_", ID),
+        label = NULL,
+        placeholder = "XXXXX XXXXX",
+        style = list(outline = TRUE)
+      ))),
     f7Grid(
       cols = 1,
       p(align = "center", strong("Crew Member(s)"))

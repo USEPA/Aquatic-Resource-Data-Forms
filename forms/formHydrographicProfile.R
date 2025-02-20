@@ -54,20 +54,34 @@ formHydrographicProfile <- function(ID) {
       outline = TRUE,
       raised = TRUE,
       f7Grid(
-        cols = 4,
+        cols = 2,
         p(align = "center", strong("Station Depth")),
-        p(align = "center", strong("Cable Length")),
-        p(align = "center", strong("Secchi Depth")),
-        p(align = "left", strong("Clear to bottom?")),
-      ),
+        p(align = "left", strong(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Clear to Bottom?")))
+        ),
       f7Grid(
-        cols = 4,
+        cols = 2,
         f7Text(
           inputId = paste0("stationdepth_", ID),
           label = NULL,
           placeholder = "XX.X",
           style = list(outline = TRUE)
         ),
+        div(id = "radio", class = "horizontal-radio",style = "display: flex; justify-content: left;",
+            f7Radio(
+              inputId = paste0("cleartobottom_", ID),
+              label = NULL,
+              choices = c("Y", "N"),
+              selected = "N"))
+        ),
+      conditionalPanel(
+        condition = paste0('input.cleartobottom_',ID,'=="N"'),
+      f7Grid(
+        cols = 2,
+        p(align = "center", strong("Secchi Depth")),
+        p(align = "center", strong("Cable Length"))
+      ),
+    f7Grid(
+      cols = 2,
         f7Text(
           inputId = paste0("cablelength_", ID),
           label = NULL,
@@ -79,19 +93,8 @@ formHydrographicProfile <- function(ID) {
           label = NULL,
           placeholder = "XX.X",
           style = list(outline = TRUE)
-        ),
-        div(style = "text-align: center;", 
-        f7Radio(
-          inputId = paste0("cleartobottom_", ID),
-          label = NULL,
-          choices = c("Y", "N"),
-          selected = "N",
-          style = list(
-            inset = TRUE
-          ))
-      )
-    )
-    ),
+        ))
+    )),
     f7BlockTitle(title = "Profile", size="large") %>% f7Align(side = "left"),
     f7Card(
       outline = TRUE,

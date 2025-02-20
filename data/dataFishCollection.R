@@ -18,17 +18,18 @@ for (i in 1:N) {
   
   # random number depends on the mean specified
   xy[[i]] <- data.frame(Site_ID = paste0(ID),
+                        Fish_Lead = input[[paste0("fishlead_",ID)]],
                         Line = i,
-                        Fish_Name = input[[paste0("fishname_",i,"_", ID)]],
-                        Hybrid = input[[paste0("hybrid_",i,"_", ID)]],
-                        Introduced = input[[paste0("introduced_",i,"_", ID)]],
+                        Fish_Name = input[[paste0("fishname_",i,"_",ID)]],
+                        Hybrid = input[[paste0("hybrid_",i,"_",ID)]],
+                        Introduced = input[[paste0("introduced_",i,"_",ID)]],
                         Size_150mm = input[[paste0("FishCollection",ID,"fishless150_",i)]],
                         Size_150_300mm = input[[paste0("FishCollection",ID,"fish300_",i)]],
                         Size_301_460mm = input[[paste0("FishCollection",ID,"fish460_",i)]],
                         Size_460mm = input[[paste0("FishCollection",ID,"fishgreat460_",i)]],
-                        Vouch_Tag = input[[paste0("vouchertag_",i,"_", ID)]],
-                        Vouch_Photo = input[[paste0("voucherphoto_",i,"_", ID)]],
-                        Vouch_Retain = input[[paste0("voucherretained_",i,"_", ID)]],
+                        Vouch_Tag = input[[paste0("vouchertag_",i,"_",ID)]],
+                        Vouch_Photo = input[[paste0("voucherphoto_",i,"_",ID)]],
+                        Vouch_Retain = input[[paste0("voucherretained_",i,"_",ID)]],
                         Comments = comment
   )
 }

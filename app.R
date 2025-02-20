@@ -9,6 +9,8 @@ now_utc <- function() {
   now
 }
 
+
+watersource <- c("Stream","SnowMelt","Springs","OverbankFlood","Lake","EstuaryChannel","Precipitation","EstuarySurge","Groundwater","OtherSource")
 #Available Form IDs
 X <- c("Verification", "WaterChemistry", "FishCollection", "HydrographicProfile", "PlantCollection", "Export")
 
@@ -43,11 +45,51 @@ shinyApp(
   ui = f7Page(
     tags$link(rel = "stylesheet", type = "text/css", href = "style.css"),
     title = "Collector",
+    tags$head(tags$style("
+      #radio .horizontal-radio {
+        display: flex;
+        justify-content: center;
+        # flex-wrap: wrap; # I added this because I thought it's cleaner to wrap the #Choose a Feedback# to the top
+        gap: 20px;
+        flex-direction: row; // makes the choice label #Choose a Feedback# appear left
+      }
+      #radio .list.chevron-center ul {
+        display: flex;
+        flex-direction: row; # makes the ul elements of the list align in a row
+        gap: 2px; # decreased so that there is more space
+      }
+      
+      #radio .list.chevron-center li {
+        display: inline-block;
+        width: auto;
+      }
+      #radio .horizontal-radio .item-inner {
+        display: flex;
+        flex-direction: row !important;
+      }
+      #radio .horizontal-radio .item-title {
+        margin-right: 2px;
+      }
+      #radio .block-title {
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip; # line-break text in choices
+      }
+      #radio .list.chevron-center .item-title {
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip; # line-break text in choices
+      }
+      #radio label {display: block; padding: 5px; position: relative; padding-left: 20px;}
+#radio label input {display: none;}
+#radio label span {border: 1px solid #ccc; width: 15px; height: 15px; position: absolute; overflow: hidden; line-height: 1; text-align: center; border-radius: 100%; font-size: 10pt; left: 0; top: 50%; margin-top: -7.5px;}
+#radio input:checked + span {background: #ccf; border-color: #ccf;}
+    ")),
     options = app_options,
     allowPWA = TRUE,
     f7SplitLayout(
       sidebar = f7Panel(
-        title = "Sites",
+        title = "Site List",
         side = "left",
         effect = "push",
         options = list(
@@ -88,7 +130,7 @@ shinyApp(
           )
         )
       ),
-      # main content
+      # addSite content
           f7Items(
             f7Item(
               tabName = "tabAddSite",
@@ -129,7 +171,7 @@ shinyApp(
                     h3(strong("Instructions:"))),
                 tags$ul(
                   tags$li("Choose Resource Type, input a Site ID and click the", strong("Insert")," button."),
-                  tags$li("A tab with the Site ID you input will be added to the navbar. In the tab, relevant forms will be assembled for you."),
+                  tags$li("A tab with the Site ID you input will be added to the sidebar. In the tab, relevant forms will be assembled for you."),
                   tags$li("Once field work is complete, navigate to the", strong("Export Data"),"tab to download the forms for that site."),
                   style="font-size: 16px"
                 ))
@@ -168,7 +210,7 @@ shinyApp(
     #   updateF7Tabs(id="forms", selected = paste0("Verification", ID))
     # })
 
-    # Remove Site Tab
+    # Remove Site if Permanently Remove dialog box is confirmed
     observeEvent(input$removeTab, {
     req(length(rv$tab_names)>0)
     f7Dialog(
@@ -189,6 +231,9 @@ shinyApp(
         selector = paste0("#Panel",ID),
         multiple = TRUE
       )
+      removeUI(
+        selector = paste0("#tab",ID)
+      )
     })
 
     # Add Site Tab ----
@@ -197,7 +242,8 @@ shinyApp(
       # shinyMobile code does not work well with punctuation
       ID <- sub("[[:punct:][:blank:]]+", "_", input$site_id)
       RESOURCE <- input$resource
-
+      
+      # Validates there are not two sites with the same Site ID
       if(input$insertTab > 1){
       validate(
         need(!(ID %in% rv$tab_names),
@@ -240,7 +286,6 @@ shinyApp(
         )
       )
         
-      
       insertUI(
         selector = "#tabAddSite",
         where = "beforeBegin",
@@ -254,7 +299,7 @@ shinyApp(
                     swipeable = FALSE,
                     formVerification(ID,RESOURCE),
                     formWaterChemistry(ID),
-                    formFishCollection(ID) ,
+                    formFishCollection(ID),
                     formHydrology(ID),
                     formExport(ID,FC)
                   )
@@ -322,10 +367,11 @@ shinyApp(
     })
 
 
-
+    
     values <- reactiveValues(forms=0)
 
     # Insert UI forms ----
+    # Adds additional rows for many forms
     observeEvent(input[[paste0("Add", input$forms)]], {
 
       if(!(input$forms %in% names(values$forms))){
@@ -375,7 +421,7 @@ shinyApp(
     # Comments ----
     # This code will work for all forms to create a popup window for comments.
     commentval <- reactiveValues(forms=0)
-    lapply(1:100, function(i) {
+    lapply(1:150, function(i) {
       observeEvent(input[[paste0(input$forms,"_",i)]], {
         ID <- gsub(paste(X, collapse="|"), "", input$forms)
         n <- gsub(paste0(input$forms,"_", collapse = "|"), "", paste0(input$forms,"_",i))
@@ -403,7 +449,7 @@ shinyApp(
 
     # Fish Counter ----
     fishval <- reactiveValues(val=0)
-    lapply(1:100, function(i) {
+    lapply(1:150, function(i) {
       observeEvent(
         c(input[[paste0(input$forms,"fishless150_",i)]],
           input[[paste0(input$forms,"fish300_",i)]],
@@ -446,10 +492,32 @@ shinyApp(
             }
           })
     })
+    
+    # Hydrology Sources ----
+    lapply(watersource, function(i) {
+      observeEvent(input[[paste0(i,"Rank",gsub(paste("Hydrology", collapse="|"), "", input$forms))]], {
+        ID <- gsub(paste("Hydrology", collapse="|"), "", input$forms)
+        updateF7Checkbox(
+          inputId = paste0(i,"Present",ID),
+          value = TRUE
+        )
+      })
 
+      observeEvent(input[[paste0(i,"Present",gsub(paste("Hydrology", collapse="|"), "", input$forms))]], {
+        req(input[[paste0(i,"Present",gsub(paste("Hydrology", collapse="|"), "", input$forms))]]==FALSE)
+        
+        ID <- gsub(paste("Hydrology", collapse="|"), "", input$forms)
+        updateF7Radio(
+          inputId = paste0(i,"Rank",ID),
+          selected = character(0)
+        )
+      })
+    })
+    
+    
     # Tree Data ----
     treeval <- reactiveValues(val=0)
-    lapply(1:100, function(i) {
+    lapply(1:150, function(i) {
       observeEvent(input[[paste0("Tree",input$forms,"_",i)]], {
         ID <- gsub(paste("PlantCollection", collapse="|"), "", input$forms)
         n <- gsub(paste0(input$forms,"_", collapse = "|"), "", paste0(input$forms,"_",i))

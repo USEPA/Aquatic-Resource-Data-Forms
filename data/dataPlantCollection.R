@@ -18,6 +18,7 @@ for (i in 1:N) {
   
   # random number depends on the mean specified
   xy[[i]] <- data.frame(Site_ID = paste0(ID),
+                        Botanist = input[[paste0("botanist_",ID)]],
                         Line = i,
                         Plant_Name = input[[paste0("plantname_",i,"_",ID)]],
                         Unknown = input[[paste0("unknown_",i,"_",ID)]],
