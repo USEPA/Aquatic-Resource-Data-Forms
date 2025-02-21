@@ -3,6 +3,8 @@ library(shinyMobile)
 library(zip)
 library(openxlsx)
 
+addResourcePath(prefix = 'www', directoryPath = './www')
+
 now_utc <- function() {
   now <- Sys.time()
   attr(now, "tzone") <- "UTC"
@@ -43,48 +45,8 @@ app_options <- list(
 #### UI ----
 shinyApp(
   ui = f7Page(
-    tags$link(rel = "stylesheet", type = "text/css", href = "style.css"),
+    tags$link(rel = "stylesheet", type = "text/css", href = "www/style.css"),
     title = "Collector",
-    tags$head(tags$style("
-      #radio .horizontal-radio {
-        display: flex;
-        justify-content: center;
-        # flex-wrap: wrap; # I added this because I thought it's cleaner to wrap the #Choose a Feedback# to the top
-        gap: 20px;
-        flex-direction: row; // makes the choice label #Choose a Feedback# appear left
-      }
-      #radio .list.chevron-center ul {
-        display: flex;
-        flex-direction: row; # makes the ul elements of the list align in a row
-        gap: 2px; # decreased so that there is more space
-      }
-      
-      #radio .list.chevron-center li {
-        display: inline-block;
-        width: auto;
-      }
-      #radio .horizontal-radio .item-inner {
-        display: flex;
-        flex-direction: row !important;
-      }
-      #radio .horizontal-radio .item-title {
-        margin-right: 2px;
-      }
-      #radio .block-title {
-        white-space: normal;
-        overflow: visible;
-        text-overflow: clip; # line-break text in choices
-      }
-      #radio .list.chevron-center .item-title {
-        white-space: normal;
-        overflow: visible;
-        text-overflow: clip; # line-break text in choices
-      }
-      #radio label {display: block; padding: 5px; position: relative; padding-left: 20px;}
-#radio label input {display: none;}
-#radio label span {border: 1px solid #ccc; width: 15px; height: 15px; position: absolute; overflow: hidden; line-height: 1; text-align: center; border-radius: 100%; font-size: 10pt; left: 0; top: 50%; margin-top: -7.5px;}
-#radio input:checked + span {background: #ccf; border-color: #ccf;}
-    ")),
     options = app_options,
     allowPWA = TRUE,
     f7SplitLayout(
