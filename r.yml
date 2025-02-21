@@ -4,3 +4,4 @@ packages:
   packages:
     - name: shinyMobile
     - name: zip
+    - name: openxlsx
