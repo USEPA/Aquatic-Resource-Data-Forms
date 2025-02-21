@@ -10,12 +10,7 @@ xy <- vector("list", N) # create an empty list into which values are to be fille
 
 # run the loop N times...
 for (i in 1:N) {
-  if(is.null(input[[paste0(input$forms,"_Comment_",i)]])){
-    comment <- ""
-  } else{
-    comment <- input[[paste0(input$forms,"_Comment_",i)]]
-  }
-  
+
   xy[[i]] <- data.frame(Site_ID = paste0(ID),
                         Location = input[[paste0("LocationChem_",i,"_", ID)]],
                         Depth = input[[paste0("DepthChem_",i,"_", ID)]],
@@ -27,7 +22,7 @@ for (i in 1:N) {
                         Cond_Units = input[[paste0("ConductivityUnits_",i,"_", ID)]],
                         Temperature = input[[paste0("TemperatureChem_",i,"_", ID)]],
                         Temp_Units = input[[paste0("TemperatureUnits_",i,"_", ID)]],
-                        Comments = comment
+                        Comments = ifelse(is.null(input[[paste0(input$forms,"_Comment_",i)]]),"",input[[paste0(input$forms,"_Comment_",i)]])
   )
   }
 

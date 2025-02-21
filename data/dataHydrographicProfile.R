@@ -10,13 +10,7 @@ xy <- vector("list", N) # create an empty list into which values are to be fille
 
 # run the loop N times and on each loop...
 for (i in 1:N) {
-  if(is.null(input[[paste0(input$forms,"_Comment_",i)]])){
-    comment <- ""
-  } else{
-    comment <- input[[paste0(input$forms,"_Comment_",i)]]
-  }
   
-  # random number depends on the mean specified
   xy[[i]] <- data.frame(Site_ID = paste0(ID),
                         Station_Depth = input[[paste0("stationdepth_", ID)]],
                         Cable_Length = input[[paste0("cablelength_", ID)]],
@@ -33,7 +27,7 @@ for (i in 1:N) {
                         Temperature_Unit = input[[paste0("ProfileDOUnit_", ID)]],
                         Conductivity = input[[paste0("ProfileConductivity_",i,"_", ID)]],
                         COND_Unit = input[[paste0("ProfileCONDUnit_", ID)]],
-                        Comments = comment
+                        Comments = ifelse(is.null(input[[paste0(input$forms,"_Comment_",i)]]),"",input[[paste0(input$forms,"_Comment_",i)]])
                         
   )
   }

@@ -153,7 +153,7 @@ insertTreeData <- function(ID,n) {
         cols = 2,
         div(style = "display: flex; justify-content: center;",
         f7Stepper(
-          inputId = paste0("treecount5_10",n,"_",ID),
+          inputId = paste0("treecount200",n,"_",ID),
           label = NULL,
           min = 0,
           max = 10000,

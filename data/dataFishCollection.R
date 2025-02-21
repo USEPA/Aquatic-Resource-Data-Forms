@@ -10,13 +10,7 @@ xy <- vector("list", N) # create an empty list into which values are to be fille
 
 # run the loop N times...
 for (i in 1:N) {
-  if(is.null(input[[paste0(input$forms,"_Comment_",i)]])){
-    comment <- ""
-  } else{
-    comment <- input[[paste0(input$forms,"_Comment_",i)]]
-  }
   
-  # random number depends on the mean specified
   xy[[i]] <- data.frame(Site_ID = paste0(ID),
                         Fish_Lead = input[[paste0("fishlead_",ID)]],
                         Line = i,
@@ -30,7 +24,7 @@ for (i in 1:N) {
                         Vouch_Tag = input[[paste0("vouchertag_",i,"_",ID)]],
                         Vouch_Photo = input[[paste0("voucherphoto_",i,"_",ID)]],
                         Vouch_Retain = input[[paste0("voucherretained_",i,"_",ID)]],
-                        Comments = comment
+                        Comments = ifelse(is.null(input[[paste0(input$forms,"_Comment_",i)]]),"",input[[paste0(input$forms,"_Comment_",i)]])
   )
 }
 

@@ -10,11 +10,6 @@ xy <- vector("list", N) # create an empty list into which values are to be fille
 
 # run the loop N times...
 for (i in 1:N) {
-  if(is.null(input[[paste0(input$forms,"_Comment_",i)]])){
-    comment <- ""
-  } else{
-    comment <- input[[paste0(input$forms,"_Comment_",i)]]
-  }
   
   # random number depends on the mean specified
   xy[[i]] <- data.frame(Site_ID = paste0(ID),
@@ -25,7 +20,20 @@ for (i in 1:N) {
                         Tree = input[[paste0("tree_",i,"_",ID)]],
                         Height_Class = input[[paste0("heightclass_",i,"_",ID)]],
                         Percent_Cover = input[[paste0("percentcover_",i,"_",ID)]],
-                        Comments = comment
+                        Cover_less0.5m = ifelse(is.null(input[[paste0("treecoverless0.5_",i,"_",ID)]]),"",input[[paste0("treecoverless0.5_",i,"_",ID)]]),
+                        Cover_0.5_2m = ifelse(is.null(input[[paste0("treecover0.5_2",i,"_",ID)]]),"",input[[paste0("treecover0.5_2",i,"_",ID)]]),
+                        Cover_2_5m = ifelse(is.null(input[[paste0("treecover2_5",i,"_",ID)]]),"",input[[paste0("treecover2_5",i,"_",ID)]]),
+                        Cover_5_15m = ifelse(is.null(input[[paste0("treecover5_15",i,"_",ID)]]),"",input[[paste0("treecover5_15",i,"_",ID)]]),
+                        Cover_15_30m = ifelse(is.null(input[[paste0("treecover15_30",i,"_",ID)]]),"",input[[paste0("treecover15_30",i,"_",ID)]]),
+                        Cover_great30m = ifelse(is.null(input[[paste0("treecovergreat30",i,"_",ID)]]),"",input[[paste0("treecovergreat30",i,"_",ID)]]),
+                        DBHcount_5_10cm = ifelse(is.null(input[[paste0("treecount5_10",i,"_",ID)]]),"",input[[paste0("treecount5_10",i,"_",ID)]]),
+                        DBHcount_11_25cm = ifelse(is.null(input[[paste0("treecount11_25",i,"_",ID)]]),"",input[[paste0("treecount11_25",i,"_",ID)]]),
+                        DBHcount_26_50cm = ifelse(is.null(input[[paste0("treecount26_50",i,"_",ID)]]),"",input[[paste0("treecount26_50",i,"_",ID)]]),
+                        DBHcount_51_75cm = ifelse(is.null(input[[paste0("treecount51_75",i,"_",ID)]]),"",input[[paste0("treecount51_75",i,"_",ID)]]),
+                        DBHcount_76_100cm = ifelse(is.null(input[[paste0("treecount76_100",i,"_",ID)]]),"",input[[paste0("treecount76_100",i,"_",ID)]]),
+                        DBHcount_101_200cm = ifelse(is.null(input[[paste0("treecount101_200",i,"_",ID)]]),"",input[[paste0("treecount101_200",i,"_",ID)]]),
+                        DBHcount_great200cm = ifelse(is.null(input[[paste0("treecount200",i,"_",ID)]]),"",input[[paste0("treecount200",i,"_",ID)]]),
+                        Comments = ifelse(is.null(input[[paste0(input$forms,"_Comment_",i)]]),"",input[[paste0(input$forms,"_Comment_",i)]])
   )
 }
 
