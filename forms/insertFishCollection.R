@@ -43,47 +43,9 @@ insertFishCollection <- function(ID,n) {
     ),
     f7Grid(
       cols = 4,
+      div(style = "display: flex; justify-content: center;",
       f7Stepper(
-        inputId = paste0("fishless150_",n,"_",ID),
-        label = NULL,
-        min = 0,
-        max = 10000,
-        value = 0,
-        size = "small",
-        wraps = FALSE,
-        autorepeat = TRUE,
-        rounded = FALSE,
-        raised = TRUE,
-        manual = FALSE
-      ),
-      f7Stepper(
-        inputId = paste0("fish300_",n,"_",ID),
-        label = NULL,
-        min = 0,
-        max = 10000,
-        value = 0,
-        size = "small",
-        wraps = FALSE,
-        autorepeat = TRUE,
-        rounded = FALSE,
-        raised = TRUE,
-        manual = FALSE
-      ),
-      f7Stepper(
-        inputId = paste0("fish460_",n,"_",ID),
-        label = NULL,
-        min = 0,
-        max = 10000,
-        value = 0,
-        size = "small",
-        wraps = FALSE,
-        autorepeat = TRUE,
-        rounded = FALSE,
-        raised = TRUE,
-        manual = FALSE
-      ),
-      f7Stepper(
-        inputId = paste0("fishgreat460_",n,"_",ID),
+        inputId = paste0("FishCollection",ID,"fishless150_",n),
         label = NULL,
         min = 0,
         max = 10000,
@@ -95,12 +57,54 @@ insertFishCollection <- function(ID,n) {
         raised = TRUE,
         manual = FALSE
       )),
+      div(style = "display: flex; justify-content: center;",
+      f7Stepper(
+        inputId = paste0("FishCollection",ID,"fish300_",n),
+        label = NULL,
+        min = 0,
+        max = 10000,
+        value = 0,
+        size = "small",
+        wraps = FALSE,
+        autorepeat = TRUE,
+        rounded = FALSE,
+        raised = TRUE,
+        manual = FALSE
+      )),
+      div(style = "display: flex; justify-content: center;",
+      f7Stepper(
+        inputId = paste0("FishCollection",ID,"fish460_",n),
+        label = NULL,
+        min = 0,
+        max = 10000,
+        value = 0,
+        size = "small",
+        wraps = FALSE,
+        autorepeat = TRUE,
+        rounded = FALSE,
+        raised = TRUE,
+        manual = FALSE
+      )),
+      div(style = "display: flex; justify-content: center;",
+      f7Stepper(
+        inputId = paste0("FishCollection",ID,"fishgreat460_",n),
+        label = NULL,
+        min = 0,
+        max = 10000,
+        value = 0,
+        size = "small",
+        wraps = FALSE,
+        autorepeat = TRUE,
+        rounded = FALSE,
+        raised = TRUE,
+        manual = FALSE
+      ))),
     f7Grid(
       cols = 4,
       p(align = "center", strong("Voucher Tag #")),
       p(align = "center", strong("Voucher Photo")),
       p(align = "center", strong("Vouchers Retained")),
-      p(align = "center", strong("Comments"))
+      p(align = "center", strong(""))
     ),
     f7Grid(
       cols = 4,
@@ -122,11 +126,10 @@ insertFishCollection <- function(ID,n) {
         placeholder = "XX",
         style = list(outline = TRUE)
       ),
-      f7TextArea(
-        inputId = paste0("fishcomment_",n,"_",ID),
-        label = NULL,
-        style = list(outline = TRUE)
-      )
+      #Notice difference in Button ID 
+      f7Button(paste0("FishCollection",ID,"_",n), label=NULL, fill=FALSE,
+               icon = f7Icon("text_bubble_fill",
+                             style = "font-size: 45px;"))
     )
   )
 }

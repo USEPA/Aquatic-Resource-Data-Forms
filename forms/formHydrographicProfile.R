@@ -1,61 +1,123 @@
 formHydrographicProfile <- function(ID) {
   f7Tab(
-    title = "Hydrographic Profile",
+    title = HTML("<center>Hydrographic</br>Profile</center>"),
     tabName = paste0("HydrographicProfile",ID),
-    icon = f7Icon("flowchart"),
+    icon = f7Icon("flowchart", style="font-size: 2rem"),
+    f7BlockTitle(title = "Profile Units", size="large") %>% f7Align(side = "left"),
     f7Card(
       outline = TRUE,
       raised = TRUE,
       f7Grid(
         cols = 4,
-      f7Text(
-        inputId = paste0("stationdepth_", ID),
-        label = "Station Depth (m)",
-        placeholder = "XX.X",
-        style = list(outline = TRUE)
-      )
+        p(align = "center", strong("Depth")),
+        p(align = "center", strong("Temperature")),
+        p(align = "center", strong("Dissolved Oxygen")),
+        p(align = "center", strong("Conductivity"))
+      ),
+      f7Grid(
+        cols = 4,
+        f7Select(
+          inputId = paste0("ProfileDepthUnit_", ID),
+          label = NULL,
+          choices = c("m", "ft", "cm"),
+          selected = "m",
+          width = NULL,
+          style = list(outline = TRUE)
+        ),
+        f7Select(
+          inputId = paste0("ProfileTempUnit_", ID),
+          label = NULL,
+          choices = c("C", "F"),
+          selected = "C",
+          width = NULL,
+          style = list(outline = TRUE)
+        ),
+        f7Select(
+          inputId = paste0("ProfileDOUnit_", ID),
+          label = NULL,
+          choices = c("mg/L", "% Saturation"),
+          selected = "mg/L",
+          width = NULL,
+          style = list(outline = TRUE)
+        ),
+        f7Select(
+          inputId = paste0("ProfileCONDUnit_", ID),
+          label = NULL,
+          choices = c("uS/cm", "umhos/cm"),
+          selected = "uS/cm",
+          width = NULL,
+          style = list(outline = TRUE)
+        )
       )),
-    f7BlockTitle(title = "Secchi Depth", size="large") %>% f7Align(side = "left"),
+    f7BlockTitle(title = "Station Information", size="large") %>% f7Align(side = "left"),
     f7Card(
       outline = TRUE,
       raised = TRUE,
       f7Grid(
-        cols = 6,
+        cols = 2,
+        p(align = "center", strong("Station Depth")),
+        p(align = "left", strong(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Clear to Bottom?")))
+        ),
+      f7Grid(
+        cols = 2,
         f7Text(
-          inputId = paste0("secchidepth_", ID),
-          label = "Secchi Depth (m)",
+          inputId = paste0("stationdepth_", ID),
+          label = NULL,
           placeholder = "XX.X",
           style = list(outline = TRUE)
         ),
-        f7Radio(
-          inputId = paste0("cleartobottom_", ID),
-          label = "Clear to bottom?",
-          choices = c("Y", "N"),
-          selected = "N",
-          style = list(
-            inset = TRUE
-          )
-      )
-    )
-    ),
+        div(id = "radio", class = "horizontal-radio",style = "display: flex; justify-content: left;",
+            f7Radio(
+              inputId = paste0("cleartobottom_", ID),
+              label = NULL,
+              choices = c("Y", "N"),
+              selected = "N"))
+        ),
+      conditionalPanel(
+        condition = paste0('input.cleartobottom_',ID,'=="N"'),
+      f7Grid(
+        cols = 2,
+        p(align = "center", strong("Secchi Depth")),
+        p(align = "center", strong("Cable Length"))
+      ),
+    f7Grid(
+      cols = 2,
+        f7Text(
+          inputId = paste0("cablelength_", ID),
+          label = NULL,
+          placeholder = "XX.X",
+          style = list(outline = TRUE)
+        ),
+        f7Text(
+          inputId = paste0("secchidepth_", ID),
+          label = NULL,
+          placeholder = "XX.X",
+          style = list(outline = TRUE)
+        ))
+    )),
     f7BlockTitle(title = "Profile", size="large") %>% f7Align(side = "left"),
     f7Card(
       outline = TRUE,
       raised = TRUE,
       f7Grid(
-        cols = 6,
+        cols = 7,
+        p(align = "center", strong("")),
         p(align = "center", strong("Upcast?")),
-        p(align = "center", strong("Depth (m)")),
-        p(align = "center", strong("Temp (C)")),
+        p(align = "center", strong("Depth")),
+        p(align = "center", strong("Temp")),
         p(align = "center", strong("pH")),
-        p(align = "center", strong("DO (mg/L)")),
-        p(align = "center", strong("COND (uS/cm)"))
+        p(align = "center", strong("DO")),
+        p(align = "center", strong("COND"))
         # p(align = "center", strong("Light (AMB)")),
         # p(align = "center", strong("Light (UW)"))
       ),
       lapply(1:15, function(i) {
       f7Grid(
-        cols = 6,
+        cols = 7,
+        #Notice difference in Button ID 
+        f7Button(paste0("HydrographicProfile",ID,"_",i), label=NULL, fill=FALSE,
+                 icon = f7Icon("text_bubble_fill",
+                               style = "font-size: 45px;")),
         div(style = "text-align: center;", 
         f7Toggle(
           inputId = paste0("ProfileUpcast_",i,"_",ID),
@@ -65,43 +127,43 @@ formHydrographicProfile <- function(ID) {
         f7Text(
           inputId = paste0("ProfileDepth_",i,"_",ID),
           label = NULL,
-          placeholder = "XX.X",
+          placeholder = "X.X",
           style = list(outline = TRUE)
           ),
         f7Text(
           inputId = paste0("ProfileTemperature_",i,"_",ID),
           label = NULL,
-          placeholder = "XX.X",
+          placeholder = "X.X",
           style = list(outline = TRUE)
           ),
         f7Text(
           inputId = paste0("ProfilePH_",i,"_",ID),
           label = NULL,
-          placeholder = "XX.X",
+          placeholder = "X.X",
           style = list(outline = TRUE)
           ),
         f7Text(
           inputId = paste0("ProfileDO_",i,"_",ID),
           label = NULL,
-          placeholder = "XX.X",
+          placeholder = "X.X",
           style = list(outline = TRUE)
           ),
         f7Text(
           inputId = paste0("ProfileConductivity_",i,"_",ID),
           label = NULL,
-          placeholder = "XX.X",
+          placeholder = "X.X",
           style = list(outline = TRUE)
           )
         # f7Text(
         #   inputId = paste0("ProfileLightAMB_",i,"_",ID),
         #   label = NULL,
-        #   placeholder = "XX.X",
+        #   placeholder = "X.X",
         #   style = list(outline = TRUE)
         #   ),
         # f7Text(
         #   inputId = paste0("ProfileLightUW_",i,"_",ID),
         #   label = NULL,
-        #   placeholder = "XX.X",
+        #   placeholder = "X.X",
         #   style = list(outline = TRUE)
         #   )
         )
