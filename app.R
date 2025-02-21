@@ -12,9 +12,9 @@ now_utc <- function() {
 }
 
 
-watersource <- c("Stream","SnowMelt","Springs","OverbankFlood","Lake","EstuaryChannel","Precipitation","EstuarySurge","Groundwater","OtherSource")
+watersource <- c("Stream","SnowMelt","Springs","OverbankFlood","Lake","EstuaryChannel","Precipitation","EstuarySurge","Groundwater","Culvert","Other")
 #Available Form IDs
-X <- c("Verification", "WaterChemistry", "FishCollection", "HydrographicProfile", "PlantCollection", "Export")
+X <- c("Verification", "WaterChemistry", "FishCollection", "HydrographicProfile", "PlantCollection", "Hydrology", "Export")
 
 # source modules
 e <- environment()
@@ -262,7 +262,6 @@ shinyApp(
                     formVerification(ID,RESOURCE),
                     formWaterChemistry(ID),
                     formFishCollection(ID),
-                    formHydrology(ID),
                     formExport(ID,FC)
                   )
                 } else if(input$resource == "Lakes and Ponds"){
@@ -326,6 +325,10 @@ shinyApp(
 
     PLANTCOLLECTION <- reactive({
       source("data/dataPlantCollection.R", local = TRUE)$value
+    })
+    
+    HYDROLOGY <- reactive({
+      source("data/dataHydrology.R", local = TRUE)$value
     })
 
 
@@ -455,7 +458,7 @@ shinyApp(
           })
     })
     
-    # Hydrology Sources ----
+    # Hydrology Sources radiobutton update ----
     lapply(watersource, function(i) {
       observeEvent(input[[paste0(i,"Rank",gsub(paste("Hydrology", collapse="|"), "", input$forms))]], {
         ID <- gsub(paste("Hydrology", collapse="|"), "", input$forms)
@@ -477,7 +480,7 @@ shinyApp(
     })
     
     
-    # Tree Data ----
+    # Tree Data popup----
     treeval <- reactiveValues(val=0)
     lapply(1:150, function(i) {
       observeEvent(input[[paste0("Tree",input$forms,"_",i)]], {
@@ -527,6 +530,7 @@ shinyApp(
           write.csv(FISHCOLLECTION(), file.path(tmp.path, "Fish Collection.csv"), row.names = FALSE)
         } else if(input[[paste0("resource_", ID)]] == "Wetlands"){
           write.csv(PLANTCOLLECTION(), file.path(tmp.path, "Plant Collection.csv"), row.names = FALSE)
+          write.csv(HYDROLOGY(), file.path(tmp.path, "Hydrology.csv"), row.names = FALSE)
         } else if(input[[paste0("resource_", ID)]] == "Estuaries"){
           write.csv(HYDROGRAPHICPROFILE(), file.path(tmp.path, "Hydrographic Profile.csv"), row.names = FALSE)
           write.csv(FISHCOLLECTION(), file.path(tmp.path, "Fish Collection.csv"), row.names = FALSE)
@@ -560,7 +564,9 @@ shinyApp(
             fs <- fs [! fs %in% input[[paste0("formchoice",ID)]]]
           } else if(input[[paste0("resource_", ID)]] == "Wetlands"){
             addWorksheet(wb, "Plant Collection")
+            addWorksheet(wb, "Hydrology")
             writeData(wb, x = PLANTCOLLECTION(), sheet = "Plant Collection")
+            writeData(wb, x = HYDROLOGY(), sheet = "Hydrology")
             fs <- c("Verification", "Water Chemistry", "Plant Collection")
             fs <- fs [! fs %in% input[[paste0("formchoice",ID)]]]
           } else if(input[[paste0("resource_", ID)]] == "Estuaries"){

@@ -86,7 +86,7 @@ formHydrology <- function(ID) {
            inputId = paste0("TidalStage",ID),
            label = NULL,
            choices = c("NA", "Incoming", "Outgoing", "Slack", "Flood"),
-           selected = NULL,
+           selected = "NA",
            position = "left"
          )
      )),
@@ -199,7 +199,7 @@ formHydrology <- function(ID) {
         cols = 4,
         div(style = "text-align: right;",
             f7Checkbox(
-              inputId = paste0("PrecipitationPresent_",ID),
+              inputId = paste0("PrecipitationPresent",ID),
               label = "Precipitation (rain, snow)",
               value = FALSE
             )),
@@ -263,7 +263,7 @@ formHydrology <- function(ID) {
         cols = 2,
         div(style = "text-align: right;",
             f7Checkbox(
-              inputId = paste0("CulvertsPresent",ID),
+              inputId = paste0("CulvertPresent",ID),
               label = "Culverts",
               value = FALSE
             )),
@@ -348,7 +348,7 @@ formHydrology <- function(ID) {
               cols = 3,
               div(style = "text-align: right;", 
                   f7Checkbox(
-                    inputId = paste0("8",ID),
+                    inputId = paste0("B8",ID),
                     label = "Sparsely Veg. Concave Surf. (B8)"
                   )),
               div(style = "text-align: right;", 
@@ -455,6 +455,56 @@ formHydrology <- function(ID) {
                     ))
               )
           ),
+    
+    p(align = "left", strong("Group D - Evidence from Other Site Conditions or Data")),
+    f7Card(
+      outline = TRUE,
+      raised = TRUE,
+    f7Grid(
+      cols = 3,
+      div(style = "text-align: right;", 
+          f7Checkbox(
+            inputId = paste0("D1",ID),
+            label = HTML("Stunted or Stressed&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>Plants (D1)")
+          )),
+      div(style = "text-align: right;", 
+          f7Checkbox(
+            inputId = paste0("D2",ID),
+            label = "Geomorphic Position (D2)"
+          )),
+      div(style = "text-align: right;", 
+          f7Checkbox(
+            inputId = paste0("D3",ID),
+            label = "Shallow Aquitard (D3)"
+          ))
+      ),
+    f7Grid(
+      cols = 3,
+    div(style = "text-align: right;", 
+        f7Checkbox(
+          inputId = paste0("D4",ID),
+          label = "Microtopographic Relief (D4)"
+        )),
+    div(style = "text-align: right;", 
+        f7Checkbox(
+          inputId = paste0("D6",ID),
+          label = "Raised Ant Mounds (D6)"
+        )),
+    div(style = "text-align: right;", 
+        f7Checkbox(
+          inputId = paste0("D7",ID),
+          label = "Frost-Heave Hummocks (D7)"
+        ))
+    ),
+    f7Grid(
+      cols = 3,
+      div(style = "text-align: right;", 
+          f7Checkbox(
+            inputId = paste0("D8",ID),
+            label = "Sphagnum Moss (D8)"
+          ))
+      )),
+      
     f7BlockTitle(title = "General Hydrology Observation and Notes", size="large") %>% f7Align(side = "center"),
     f7Card(
       outline = TRUE,
@@ -463,8 +513,7 @@ formHydrology <- function(ID) {
       f7TextArea(
         inputId = paste0("HydrologyComments", ID),
         label = NULL,
+        value = "",
         style = list(outline = TRUE)
       ))
-        
-        
-      )}
+    )}
