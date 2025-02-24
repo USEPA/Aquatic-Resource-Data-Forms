@@ -78,7 +78,7 @@ shinyApp(
             choices = c("light", "dark"),
             selected = ifelse(app_options$dark, "dark", "light")
           ),
-          effect = "floating",
+          effect = "floating"
         )
       ),
       navbar = f7Navbar(
@@ -243,7 +243,7 @@ shinyApp(
                  f7PanelItem(
                    tabName = paste0("tab",ID),
                    title = ID,
-                   icon = ICON,
+                   icon = ICON
                  )
         )
       )

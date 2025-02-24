@@ -21,6 +21,7 @@ for (i in 1:N) {
                         Size_150_300mm = input[[paste0("FishCollection",ID,"fish300_",i)]],
                         Size_301_460mm = input[[paste0("FishCollection",ID,"fish460_",i)]],
                         Size_460mm = input[[paste0("FishCollection",ID,"fishgreat460_",i)]],
+                        Total_Count = ifelse(!(paste0("FishCollection",ID) %in% names(fishval$val)),0,fishval$val[[paste0("FishCollection",ID)]]),
                         Vouch_Tag = input[[paste0("vouchertag_",i,"_",ID)]],
                         Vouch_Photo = input[[paste0("voucherphoto_",i,"_",ID)]],
                         Vouch_Retain = input[[paste0("voucherretained_",i,"_",ID)]],
@@ -34,7 +35,7 @@ for (i in 1:N) {
 # you can bind them together into one data.frame using do.call
 # rbind means they will be merged row-wise
 xy <- do.call(rbind, xy)
-xy[!(xy$Fish_Name=="" & xy$Hybrid==FALSE & xy$Introduced==FALSE & xy$Size_150mm== 0 & xy$Size_150_300mm== 0 & xy$Size_301_460mm==0 & xy$Size_460mm==0 & xy$Vouch_Tag=="" & xy$Vouch_Photo==FALSE & xy$Vouch_Retain=="" & xy$Comments==""), ]
+# xy[!(xy$Fish_Name=="" & xy$Hybrid==FALSE & xy$Introduced==FALSE & xy$Size_150mm== 0 & xy$Size_150_300mm== 0 & xy$Size_301_460mm==0 & xy$Size_460mm==0 & xy$Vouch_Tag=="" & xy$Vouch_Photo==FALSE & xy$Vouch_Retain=="" & xy$Comments==""), ]
 
 
 

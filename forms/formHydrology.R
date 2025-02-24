@@ -470,12 +470,12 @@ formHydrology <- function(ID) {
       div(style = "text-align: right;", 
           f7Checkbox(
             inputId = paste0("D2",ID),
-            label = "Geomorphic Position (D2)"
+            label = HTML("<br/>Geomorphic Position (D2))")
           )),
       div(style = "text-align: right;", 
           f7Checkbox(
             inputId = paste0("D3",ID),
-            label = "Shallow Aquitard (D3)"
+            label = HTML("<br/>Shallow Aquitard (D3)")
           ))
       ),
     f7Grid(

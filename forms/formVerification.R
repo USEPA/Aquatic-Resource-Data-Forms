@@ -6,7 +6,7 @@ formVerification <- function(ID,RESOURCE) {
   tabName = paste0("Verification",ID),
   icon = f7Icon("location_circle", style="font-size: 2rem",
                 f7Badge(paste0(ID), color="blue")),
-  active = FALSE,
+  active = TRUE,
   f7BlockTitle(title = "Site Information", size="large") %>% f7Align(side = "center"),
   f7Card(
     outline = TRUE,
