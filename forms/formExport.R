@@ -4,6 +4,15 @@ formExport<- function(ID,FC) {
     tabName = paste0("Export",ID),
     icon = icon("download", style="font-size: 2rem"),
   f7Block(
+    div(id=paste0("formsitechoice",ID),
+    div(
+      f7CheckboxGroup(
+        inputId = paste0("sitechoice",ID),
+        label = "Choose which sites you want to save:",
+        choices = ID,
+        selected = ID,
+        position = "left"
+      ), style = "font-size:18px;"),
     div(
     f7CheckboxGroup(
       inputId = paste0("formchoice",ID),
@@ -11,8 +20,9 @@ formExport<- function(ID,FC) {
       choices = FC,
       selected = "Verification",
       position = "left"
-    ), style = "font-size:18px;"),
-    div(
+    ), style = "font-size:18px;")
+    ),
+    div(id=paste0("exportchoicetitle",ID),
     f7Radio(
       inputId = paste0("exportchoice",ID),
       label = "Choose how you want the data saved:",

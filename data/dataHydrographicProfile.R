@@ -27,7 +27,7 @@ for (i in 1:N) {
                         Temperature_Unit = input[[paste0("ProfileDOUnit_", ID)]],
                         Conductivity = input[[paste0("ProfileConductivity_",i,"_", ID)]],
                         COND_Unit = input[[paste0("ProfileCONDUnit_", ID)]],
-                        Comments = ifelse(is.null(input[[paste0(input$forms,"_Comment_",i)]]),"",input[[paste0(input$forms,"_Comment_",i)]])
+                        Comments = ifelse(is.null(input[[paste0("FishCollection",ID,"_Comment_",i)]]),"",input[[paste0(input$formchoice,"_Comment_",i)]])
                         
   )
   }

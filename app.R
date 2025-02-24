@@ -152,7 +152,8 @@ shinyApp(
     
     
     rv <- reactiveValues(tab_names=character(0))
-
+    res <- reactiveValues(resource_names=character(0), label=character(0))
+    
     # update mode
     observeEvent(input$dark, ignoreInit = TRUE, {
       updateF7App(
@@ -186,8 +187,11 @@ shinyApp(
     observeEvent(input$confirm_dialog, {
       req(input$confirm_dialog==TRUE)
       ID <- sub("[[:punct:][:blank:]]+", "_", input$site_id)
+      RESOURCE <- input$resource
+      
       #Remove tabnames from reactiveValue
       rv$tab_names <- rv$tab_names[! rv$tab_names %in% ID]
+      res$resource_names <- res$resource_names[! res$resource_names %in% RESOURCE]
       
       removeUI(
         selector = paste0("#Panel",ID),
@@ -220,20 +224,31 @@ shinyApp(
 
       #Adds tabnames to reactiveValue (for validate there are no duplicate site ids)
       rv$tab_names <- c(rv$tab_names, ID)
-
+      res$resource_names <- c(res$resource_names, RESOURCE)
+      
+      FC <- c()
+      if("Rivers and Streams" %in% res$resource_names){
+        FC <- unique(append(FC, c("Verification", "Water Chemistry", "Fish Collection")))
+      }
+      if("Lakes and Ponds" %in% res$resource_names){
+        FC <- unique(append(FC, c("Verification", "Water Chemistry", "Hydrographic Profile", "Fish Collection")))
+      }
+      if("Wetlands" %in% res$resource_names){
+        FC <- unique(append(FC, c("Verification", "Water Chemistry", "Plant Collection", "Hydrology")))
+      }
+      if("Estuaries" %in% res$resource_names){
+        FC <- unique(append(FC, c("Verification", "Water Chemistry", "Hydrographic Profile", "Fish Collection")))
+      }
+      
       # Resource type Icons and export choices
       if(input$resource == "Rivers and Streams"){
         ICON <- icon("water", style="font-size: 2rem")
-        FC <- c("Verification", "Water Chemistry", "Fish Collection")
       } else if(input$resource == "Lakes and Ponds"){
         ICON <- icon("ship", style="font-size: 2rem")
-        FC <- c("Verification", "Water Chemistry", "Hydrographic Profile", "Fish Collection")
       } else if(input$resource == "Wetlands"){
         ICON <- icon("tree", style="font-size: 2rem")
-        FC <- c("Verification", "Water Chemistry", "Plant Collection", "Hydrology")
       } else if(input$resource == "Estuaries"){
         ICON <- icon("sailboat", style="font-size: 2rem")
-        FC <- c("Verification", "Water Chemistry", "Hydrographic Profile", "Fish Collection")
       }
 
       insertUI(
@@ -305,6 +320,64 @@ shinyApp(
           )
       hideF7Preloader(id = "loader")
     })
+    
+    observeEvent(input$insertTab, {
+      ID <- sub("[[:punct:][:blank:]]+", "_", input$site_id)
+      RESOURCE <- input$resource
+      
+      req(ID %in% rv$tab_names, RESOURCE %in% res$resource_names)
+      tabs <- rv$tab_names
+      resource <- res$resource_names
+      
+      FC <- c()
+      if("Rivers and Streams" %in% res$resource_names){
+        FC <- unique(append(FC, c("Verification", "Water Chemistry", "Fish Collection")))
+      }
+      if("Lakes and Ponds" %in% res$resource_names){
+        FC <- unique(append(FC, c("Verification", "Water Chemistry", "Hydrographic Profile", "Fish Collection")))
+      }
+      if("Wetlands" %in% res$resource_names){
+        FC <- unique(append(FC, c("Verification", "Water Chemistry", "Plant Collection", "Hydrology")))
+      }
+      if("Estuaries" %in% res$resource_names){
+        FC <- unique(append(FC, c("Verification", "Water Chemistry", "Hydrographic Profile", "Fish Collection")))
+      }
+      
+      lapply(tabs, function(i) {
+        removeUI(
+          selector = paste0("#formsitechoice",i)
+        )
+      })
+
+      lapply(tabs, function(i) {
+        insertUI(
+          selector = paste0("#exportchoicetitle",i),
+          where = "beforeBegin",
+          ui =
+            div(id=paste0("formsitechoice",ID),
+            div(
+                f7CheckboxGroup(
+                  inputId = paste0("sitechoice",i),
+                  label = "Choose which sites you want to save:",
+                  choices = rev(tabs),
+                  selected = i,
+                  position = "left"
+                ), style = "font-size:18px;"),
+          div(
+              f7CheckboxGroup(
+                inputId = paste0("formchoice",i),
+                label = "Choose which forms you want to save:",
+                choices = FC,
+                selected = "Verification",
+                position = "left"
+              ), style = "font-size:18px;")
+        ))
+      })
+    })
+
+    
+    
+    
 
     # data Reactives ----
     VERIFICATION <- reactive({
