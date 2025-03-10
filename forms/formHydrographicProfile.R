@@ -83,17 +83,17 @@ formHydrographicProfile <- function(ID) {
     f7Grid(
       cols = 2,
         f7Text(
-          inputId = paste0("cablelength_", ID),
-          label = NULL,
-          placeholder = "XX.X",
-          style = list(outline = TRUE)
-        ),
-        f7Text(
           inputId = paste0("secchidepth_", ID),
           label = NULL,
           placeholder = "XX.X",
           style = list(outline = TRUE)
-        ))
+        ),
+      f7Text(
+        inputId = paste0("cablelength_", ID),
+        label = NULL,
+        placeholder = "XX.X",
+        style = list(outline = TRUE)
+      ))
     )),
     f7BlockTitle(title = "Profile", size="large") %>% f7Align(side = "left"),
     f7Card(

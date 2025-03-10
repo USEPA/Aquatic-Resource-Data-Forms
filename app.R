@@ -51,6 +51,7 @@ shinyApp(
     allowPWA = TRUE,
     f7SplitLayout(
       sidebar = f7Panel(
+        id="menu",
         title = "Site List",
         side = "left",
         effect = "push",
@@ -59,12 +60,12 @@ shinyApp(
         ),
         f7PanelMenu(
           id = "tabs",
-          strong = TRUE,
+          inset = TRUE,
+          outline = TRUE,
           f7PanelItem(
             title = "Add Site",
             tabName = "tabAddSite",
-            icon = f7Icon("plusminus_circle_fill", style="font-size: 2rem"),
-            active = TRUE
+            icon = f7Icon("plusminus_circle_fill", style="font-size: 2rem")
           )
         )
       ),
@@ -139,17 +140,9 @@ shinyApp(
                 ))
             )
           )
-    )
-    
-    
-    
-    
-    
-    
-    
+      )
     ),
   server = function(input, output, session) {
-    
     
     rv <- reactiveValues(tab_names=character(0))
     res <- reactiveValues(resource_names=character(0), label=character(0))
@@ -162,7 +155,7 @@ shinyApp(
         )
       )
     })
-
+   
     
     #Brings user back to Verification form when selecting new site
     # observeEvent(input$tabs,{
@@ -211,9 +204,16 @@ shinyApp(
       
       # Validates there are not two sites with the same Site ID
       if(input$insertTab > 1){
+        if(ID %in% rv$tab_names){
+        f7Toast(
+          position = "center",
+          text = HTML("<b>Can't have duplicate Site ID's.</b>"),
+          closeButton=FALSE
+        )
       validate(
         need(!(ID %in% rv$tab_names),
              "Can't have two Site ID's."))
+        }
       }
       # progress bar ----
       showF7Preloader(type = "dialog", id = "loader")
@@ -255,12 +255,16 @@ shinyApp(
         selector = "#tabs",
         where = "afterEnd",
         ui = div(id = paste0("Panel",ID),
-                 f7PanelItem(
+                 f7PanelMenu(id="tabs", #only way we could get input$tabs to work on newly input tabs
+                             inset = TRUE,
+                             outline = TRUE,
+                  f7PanelItem(
                    tabName = paste0("tab",ID),
                    title = ID,
-                   icon = ICON
+                   icon = ICON,
+                   active = TRUE
                  )
-        )
+        ))
       )
         
       insertUI(
@@ -318,6 +322,7 @@ shinyApp(
                 }
             )
           )
+      updateF7Panel(id = "menu")
       hideF7Preloader(id = "loader")
     })
     
@@ -343,6 +348,7 @@ shinyApp(
         FC <- unique(append(FC, c("Verification", "Water Chemistry", "Hydrographic Profile", "Fish Collection")))
       }
       
+      
       lapply(tabs, function(i) {
         removeUI(
           selector = paste0("#formsitechoice",i)
@@ -354,7 +360,7 @@ shinyApp(
           selector = paste0("#exportchoicetitle",i),
           where = "beforeBegin",
           ui =
-            div(id=paste0("formsitechoice",ID),
+            div(id=paste0("formsitechoice",i),
             div(
                 f7CheckboxGroup(
                   inputId = paste0("sitechoice",i),
@@ -576,7 +582,6 @@ shinyApp(
       })
     })
 
-
     # Export Data ----
     output$download <- downloadHandler(
       filename = function() {
@@ -589,25 +594,30 @@ shinyApp(
         }
       },
       content = function(file) {
-        ID <- trimws(sub(paste(X, collapse = "|"), "", input$forms))
-
+        ID <- gsub(paste('tab', collapse = "|"), "", input$tabs)
+        
         if(input[[paste0("exportchoice", gsub(paste(X, collapse = "|"), "", input$forms))]] == 1){
         tmp.path <- dirname(file)
-        # Verification and Water Chemistry are in all resource types
+        
+        if("Verification" %in% input[[paste0("formchoice",ID)]]){
           write.csv(VERIFICATION(), file.path(tmp.path, "Verification.csv"), row.names = FALSE)
+        }
+        if("Water Chemistry" %in% input[[paste0("formchoice",ID)]]){
           write.csv(WATERCHEMISTRY(), file.path(tmp.path, "Water Chemistry.csv"), row.names = FALSE)
-        if(input[[paste0("resource_", ID)]] == "Rivers and Streams"){
-          write.csv(FISHCOLLECTION(), file.path(tmp.path, "Fish Collection.csv"), row.names = FALSE)
-        } else if(input[[paste0("resource_", ID)]] == "Lakes and Ponds"){
-          write.csv(HYDROGRAPHICPROFILE(), file.path(tmp.path, "Hydrographic Profile.csv"), row.names = FALSE)
-          write.csv(FISHCOLLECTION(), file.path(tmp.path, "Fish Collection.csv"), row.names = FALSE)
-        } else if(input[[paste0("resource_", ID)]] == "Wetlands"){
-          write.csv(PLANTCOLLECTION(), file.path(tmp.path, "Plant Collection.csv"), row.names = FALSE)
-          write.csv(HYDROLOGY(), file.path(tmp.path, "Hydrology.csv"), row.names = FALSE)
-        } else if(input[[paste0("resource_", ID)]] == "Estuaries"){
-          write.csv(HYDROGRAPHICPROFILE(), file.path(tmp.path, "Hydrographic Profile.csv"), row.names = FALSE)
+        }
+        if("Fish Collection" %in% input[[paste0("formchoice",ID)]]){
           write.csv(FISHCOLLECTION(), file.path(tmp.path, "Fish Collection.csv"), row.names = FALSE)
         }
+        if("Hydrographic Profile" %in% input[[paste0("formchoice",ID)]]){
+          write.csv(HYDROGRAPHICPROFILE(), file.path(tmp.path, "Hydrographic Profile.csv"), row.names = FALSE)
+        }
+        if("Plant Collection" %in% input[[paste0("formchoice",ID)]]){
+          write.csv(PLANTCOLLECTION(), file.path(tmp.path, "Plant Collection.csv"), row.names = FALSE)
+        }
+        if("Hydrology" %in% input[[paste0("formchoice",ID)]]){
+          write.csv(HYDROLOGY(), file.path(tmp.path, "Hydrology.csv"), row.names = FALSE)
+        }
+        
 
         fs <- c()
         for(i in input[[paste0("formchoice",ID)]]) {
@@ -619,41 +629,29 @@ shinyApp(
         if(file.exists(paste0(file, ".zip"))) {file.rename(paste0(file, ".zip"), file)}
         } else {
             wb <- createWorkbook(file)
-            addWorksheet(wb, "Verification")
-            addWorksheet(wb, "Water Chemistry")
-            writeData(wb, x = VERIFICATION(), sheet = "Verification")
-            writeData(wb, x = WATERCHEMISTRY(), sheet = "Water Chemistry")
-          if(input[[paste0("resource_", ID)]] == "Rivers and Streams"){
-            addWorksheet(wb, "Fish Collection")
-            writeData(wb, x = FISHCOLLECTION(), sheet = "Fish Collection")
-            fs <- c("Verification", "Water Chemistry", "Fish Collection")
-            fs <- fs [! fs %in% input[[paste0("formchoice",ID)]]]
-          } else if(input[[paste0("resource_", ID)]] == "Lakes and Ponds"){
-            addWorksheet(wb, "Fish Collection")
-            addWorksheet(wb, "Hydrographic Profile")
-            writeData(wb, x = FISHCOLLECTION(), sheet = "Fish Collection")
-            writeData(wb, x = HYDROGRAPHICPROFILE(), sheet = "Hydrographic Profile")
-            fs <- c("Verification", "Water Chemistry", "Fish Collection", "Hydrographic Profile")
-            fs <- fs [! fs %in% input[[paste0("formchoice",ID)]]]
-          } else if(input[[paste0("resource_", ID)]] == "Wetlands"){
-            addWorksheet(wb, "Plant Collection")
-            addWorksheet(wb, "Hydrology")
-            writeData(wb, x = PLANTCOLLECTION(), sheet = "Plant Collection")
-            writeData(wb, x = HYDROLOGY(), sheet = "Hydrology")
-            fs <- c("Verification", "Water Chemistry", "Plant Collection")
-            fs <- fs [! fs %in% input[[paste0("formchoice",ID)]]]
-          } else if(input[[paste0("resource_", ID)]] == "Estuaries"){
-            addWorksheet(wb, "Fish Collection")
-            addWorksheet(wb, "Hydrographic Profile")
-            writeData(wb, x = FISHCOLLECTION(), sheet = "Fish Collection")
-            writeData(wb, x = HYDROGRAPHICPROFILE(), sheet = "Hydrographic Profile")
-            fs <- c("Verification", "Water Chemistry", "Fish Collection", "Hydrographic Profile")
-            fs <- fs [! fs %in% input[[paste0("formchoice",ID)]]]
-          }
-
-
-            for(i in fs){
-              removeWorksheet(wb,i)
+            if("Verification" %in% input[[paste0("formchoice",ID)]]){
+              addWorksheet(wb, "Verification")
+              writeData(wb, x = VERIFICATION(), sheet = "Verification")
+            }
+            if("Water Chemistry" %in% input[[paste0("formchoice",ID)]]){
+              addWorksheet(wb, "Water Chemistry")
+              writeData(wb, x = WATERCHEMISTRY(), sheet = "Water Chemistry")
+            }
+            if("Fish Collection" %in% input[[paste0("formchoice",ID)]]){
+              addWorksheet(wb, "Fish Collection")
+              writeData(wb, x = FISHCOLLECTION(), sheet = "Fish Collection")
+            }
+            if("Hydrographic Profile" %in% input[[paste0("formchoice",ID)]]){
+              addWorksheet(wb, "Hydrographic Profile")
+              writeData(wb, x = HYDROGRAPHICPROFILE(), sheet = "Hydrographic Profile")
+            }
+            if("Plant Collection" %in% input[[paste0("formchoice",ID)]]){
+              addWorksheet(wb, "Plant Collection")
+              writeData(wb, x = PLANTCOLLECTION(), sheet = "Plant Collection")
+            }
+            if("Hydrology" %in% input[[paste0("formchoice",ID)]]){
+              addWorksheet(wb, "Hydrology")
+              writeData(wb, x = HYDROLOGY(), sheet = "Hydrology")
             }
           saveWorkbook(wb, file)
         }
