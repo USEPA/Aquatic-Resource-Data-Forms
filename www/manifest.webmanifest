@@ -1,9 +1,9 @@
 {
-  "name": "Mobile Field Forms",
-  "short_name": "Mobile Field Forms",
+  "name": "Collector",
+  "short_name": "Collector",
   "description": "Creates field forms which can be used to collect data for aquatic resources.",
   "lang": "en-US",
-  "start_url": "C:/Users/gstillin/OneDrive - Environmental Protection Agency (EPA)/Documents/GStillings_R_Projects/Aquatic-Resource-Data-Forms",
+  "start_url": "https://rstudio-connect.dmap-stage.aws.epa.gov/content/6288ccea-d014-41e6-b1c1-6792a7010a27",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#ffffff",

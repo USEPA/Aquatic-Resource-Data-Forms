@@ -3,6 +3,10 @@ formPlantCollection <- function(ID,n) {
     title = div(id=paste0("planttitle",ID), HTML("<center>Plant</br>Collection</center>")),
     tabName = paste0("PlantCollection",ID),
     icon = icon("leaf", style="font-size: 2rem"),
+    f7Segment(
+      f7Button(paste0("SavePlantCollection",ID), "Save Data", color = "blue"),
+      f7Button(paste0("LoadPlantCollection",ID), "Load Data", color = "orange")
+    ),
     f7BlockTitle(title = "Species Presence and Cover", size="large") %>% f7Align(side = "center"),
     lapply(1:20, function(i) {
     f7Card(
@@ -18,7 +22,7 @@ formPlantCollection <- function(ID,n) {
         cols = 3,
         p(align = "center", strong(paste0(i))),
         f7Text(
-          inputId = paste0("plantname_",i,"_",ID),
+          inputId = paste0("plantname",i,ID),
           label = NULL,
           value="",
           placeholder = "Enter New Species",
@@ -26,21 +30,28 @@ formPlantCollection <- function(ID,n) {
         ),
         div(style = "text-align: center;", 
         f7Checkbox(
-          inputId = paste0("unknown_",i,"_",ID),
+          inputId = paste0("unknown",i,ID),
           label = NULL,
           value = FALSE
         ))
       ),
       f7Grid(
         cols = 3,
+        p(align = "center", strong("Plot")),
         p(align = "center", strong("Height Class")),
         p(align = "center", strong("Percent Cover")),
-        p(align = "center", strong("")),
+        
       ),
       f7Grid(
         cols = 3,
+        f7Text(
+          inputId = paste0("plot",i,ID),
+          label = NULL,
+          value="",
+          style = list(outline = TRUE)
+        ),
         f7Select(
-          inputId = paste0("heightclass_",i,"_",ID),
+          inputId = paste0("heightclass",i,ID),
           label = NULL,
           selected = NULL,
           choices = c("Less than 0.5m",
@@ -52,15 +63,11 @@ formPlantCollection <- function(ID,n) {
                       "Liana, vine, or epiphyte"),
           style = list(outline = TRUE)),
         f7Text(
-          inputId = paste0("percentcover_",i,"_",ID),
+          inputId = paste0("percentcover",i,ID),
           label = NULL,
           value="",
           style = list(outline = TRUE)
-        ),
-        #Notice difference in Button ID 
-        f7Button(paste0("PlantCollection",ID,"_",i), label=NULL, fill=FALSE,
-                 icon = f7Icon("text_bubble_fill",
-                               style = "font-size: 45px;"))
+        )
       ),
       f7Grid(
         cols = 3,
@@ -72,15 +79,39 @@ formPlantCollection <- function(ID,n) {
         cols = 3,
         div(style = "text-align: center;", 
             f7Checkbox(
-              inputId = paste0("tree_",i,"_",ID),
+              inputId = paste0("tree",i,ID),
               label = NULL,
               value = FALSE
             )),
         conditionalPanel(
-          condition = paste0('input.tree_',i,'_',ID),
-          f7Button(paste0("TreePlantCollection",ID,"_",i), "Enter Tree Data", color = "blue")
+          condition = paste0('input.tree',i,ID),
+          f7Button(paste0("TreePlantCollection",ID,"_",i), "Enter Tree Data", color = "blue"),
+          f7Sheet(
+            id = paste0("TreePlantCollection",ID,i),
+            orientation = "bottom",
+            closeByOutsideClick = TRUE,
+            swipeHandler = FALSE,
+            insertTreeData(ID,i)
+          ) 
         ),
-        p(align = "center", strong("")),
+        #Notice difference in Button ID 
+        f7Button(paste0("PlantCollection",ID,"_",i), label=NULL, fill=FALSE,
+                 icon = f7Icon("text_bubble_fill",
+                               style = "font-size: 45px;")),
+        f7Sheet(
+          id = paste0("PlantCollection",ID,i),
+          orientation = "bottom",
+          closeByOutsideClick = TRUE,
+          swipeHandler = FALSE,
+          options = list(breakpoints = c(0.8)),
+          p(align = "left", strong(paste0("Comment ",i))),
+          f7Block(
+            f7TextArea(inputId = paste0("PlantCollection",ID,"Comment",i),
+                       value="",
+                       label = NULL,
+                       style = list(outline = TRUE))
+          )
+        )
       )
     ) 
     }),

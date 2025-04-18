@@ -1,27 +1,12 @@
-# This is how you put checkboxes side by side
-# f7Grid(
-#   cols = 3,
-#   div(style = "text-align: right;", 
-#       f7Checkbox(
-#         inputId = paste0("B1",ID),
-#         label = "Water Marks (B1)"
-#       ),
-#       f7Checkbox(
-#         inputId = paste0("B2",ID),
-#         label = "Sediment Deposits (B2)"
-#       ),
-#       f7Checkbox(
-#         inputId = paste0("B3",ID),
-#         label = "Drift Deposits (B3)"
-#       ))
-# )
-
-
 formHydrology <- function(ID) {
   f7Tab(
     title = "Hydrology",
     tabName = paste0("Hydrology",ID),
     icon = f7Icon("drop", style="font-size: 2rem"),
+    f7Segment(
+      f7Button(paste0("SaveHydrology",ID), "Save Data", color = "blue"),
+      f7Button(paste0("LoadHydrology",ID), "Load Data", color = "orange")
+    ),
     f7BlockTitle(title = "Conditions at Assessment", size="large") %>% f7Align(side = "center"),
     f7Card(
       outline = TRUE,
@@ -63,7 +48,7 @@ formHydrology <- function(ID) {
           placeholder = "HH:MM",
           style = list(outline = TRUE)
         ),
-        div(id = "radio", class = "horizontal-radio",style = "display: flex; justify-content: center;", 
+        div(id = "radio", class = "horizontal-radio",style = "justify-content: center;", 
             f7Radio(
               inputId = paste0("Outflows", ID),
               label = NULL,
@@ -81,7 +66,7 @@ formHydrology <- function(ID) {
      f7Grid(
        cols = 2,
        p(align = "center", strong("Tidal Stage"))),
-     div(id = "radio", class = "horizontal-radio",style = "display: flex; justify-content: left;", 
+     div(id = "radio", class = "horizontal-radio",style = "justify-content: left;", 
          f7Radio(
            inputId = paste0("TidalStage",ID),
            label = NULL,
@@ -94,200 +79,130 @@ formHydrology <- function(ID) {
     f7Card(
       outline = TRUE,
       raised = TRUE,
-      p(align = "left", strong("Identify ALL water sources that influence site hydrology (mark atleast one source).")),
+      p(align = "left", strong("Identify ALL water sources that influence site hydrology (mark atleast one source). Rank the top 3 water sources (1=most influential).")),
       f7Grid(
-        cols = 4,
-        p(align = "right", strong("Present")),
-        p(align = "center", strong(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Rank"))),
-        p(align = "right", strong("Present")),
-        p(align = "center", strong(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Rank"))),
+        cols = 2,
+        p(align = "center", strong("Present/Rank")),
+        p(align = "center", strong("Present/Rank")),
         ),
       f7Grid(
-        cols = 4,
-        div(style = "text-align: right;",
-            f7Checkbox(
-                inputId = paste0("StreamPresent",ID),
-                label = "Stream inflow",
-                value = FALSE
-              )),
-        div(id = "radio", class = "horizontal-radio",style = "display: flex; justify-content: center;", 
+        cols = 2,
+        div(id = "radio", class = "horizontal-radio",style = "justify-content: center;", 
         f7Radio(
           inputId = paste0("StreamRank",ID),
-          label = NULL,
-          choices = c("1", "2", "3"),
-          selected = NULL,
+          label = "Stream Inflow",
+          choices = c("Absent","1", "2", "3"),
+          selected = "Absent",
           position = "left"
         )),
-        div(style = "text-align: right;",
-            f7Checkbox(
-              inputId = paste0("SnowMeltPresent",ID),
-              label = "Snow Melt",
-              value = FALSE
-            )),
-        div(id = "radio", class = "horizontal-radio",style = "display: flex; justify-content: center;", 
+        div(id = "radio", class = "horizontal-radio",style = "justify-content: center;", 
             f7Radio(
               inputId = paste0("SnowMeltRank",ID),
-              label = NULL,
-              choices = c("1", "2", "3"),
-              selected = NULL,
+              label = "Snow Melt",
+              choices = c("Absent","1", "2", "3"),
+              selected = "Absent",
               position = "left"
             ))
         ),
         f7Grid(
-          cols = 4,
-          div(style = "text-align: right;",
-              f7Checkbox(
-                inputId = paste0("SpringsPresent",ID),
-                label = "Springs (seeps)",
-                value = FALSE
-              )),
-          div(id = "radio", class = "horizontal-radio",style = "display: flex; justify-content: center;", 
+          cols = 2,
+          div(id = "radio", class = "horizontal-radio",style = "justify-content: center;", 
               f7Radio(
                 inputId = paste0("SpringsRank",ID),
-                label = NULL,
-                choices = c("1", "2", "3"),
-                selected = NULL,
+                label = "Springs (seeps)",
+                choices = c("Absent","1", "2", "3"),
+                selected = "Absent",
                 position = "left"
               )),
-          div(style = "text-align: right;",
-              f7Checkbox(
-                inputId = paste0("OverbankFloodPresent",ID),
-                label = "Overbank Flooding",
-                value = FALSE
-              )),
-          div(id = "radio", class = "horizontal-radio",style = "display: flex; justify-content: center;", 
+          div(id = "radio", class = "horizontal-radio",style = "justify-content: center;", 
               f7Radio(
                 inputId = paste0("OverbankFloodRank",ID),
-                label = NULL,
-                choices = c("1", "2", "3"),
-                selected = NULL,
+                label = "Overbank Flooding",
+                choices = c("Absent","1", "2", "3"),
+                selected = "Absent",
                 position = "left"
               ))
           ),
       f7Grid(
-        cols = 4,
-        div(style = "text-align: right;",
-            f7Checkbox(
-              inputId = paste0("LakePresent",ID),
-              label = "Lake",
-              value = FALSE
-            )),
-        div(id = "radio", class = "horizontal-radio",style = "display: flex; justify-content: center;", 
+        cols = 2,
+        div(id = "radio", class = "horizontal-radio",style = "justify-content: center;", 
             f7Radio(
               inputId = paste0("LakeRank",ID),
-              label = NULL,
-              choices = c("1", "2", "3"),
-              selected = NULL,
+              label = "Lake",
+              choices = c("Absent","1", "2", "3"),
+              selected = "Absent",
               position = "left"
             )),
-        div(style = "text-align: right;",
-            f7Checkbox(
-              inputId = paste0("EstuaryChannelPresent",ID),
-              label = "Estuary-Tidal Channel",
-              value = FALSE
-            )),
-        div(id = "radio", class = "horizontal-radio",style = "display: flex; justify-content: center;", 
+        div(id = "radio", class = "horizontal-radio",style = "justify-content: center;", 
             f7Radio(
               inputId = paste0("EstuaryChannelRank",ID),
-              label = NULL,
-              choices = c("1", "2", "3"),
-              selected = NULL,
+              label = "Estuary-Tidal Channel",
+              choices = c("Absent","1", "2", "3"),
+              selected = "Absent",
               position = "left"
             ))
       ),
       f7Grid(
-        cols = 4,
-        div(style = "text-align: right;",
-            f7Checkbox(
-              inputId = paste0("PrecipitationPresent",ID),
-              label = "Precipitation (rain, snow)",
-              value = FALSE
-            )),
-        div(id = "radio", class = "horizontal-radio",style = "display: flex; justify-content: center;", 
+        cols = 2,
+        div(id = "radio", class = "horizontal-radio",style = "justify-content: center;", 
             f7Radio(
               inputId = paste0("PrecipitationRank",ID),
-              label = NULL,
-              choices = c("1", "2", "3"),
-              selected = NULL,
+              label = "Precipitation (rain, snow)",
+              choices = c("Absent","1", "2", "3"),
+              selected = "Absent",
               position = "left"
             )),
-        div(style = "text-align: right;",
-            f7Checkbox(
-              inputId = paste0("EstuarySurgePresent",ID),
-              label = "Estuary-Tidal Surge",
-              value = FALSE
-            )),
-        div(id = "radio", class = "horizontal-radio",style = "display: flex; justify-content: center;", 
+        div(id = "radio", class = "horizontal-radio",style = "justify-content: center;", 
             f7Radio(
               inputId = paste0("EstuarySurgeRank",ID),
-              label = NULL,
-              choices = c("1", "2", "3"),
-              selected = NULL,
+              label = "Estuary-Surge",
+              choices = c("Absent","1", "2", "3"),
+              selected = "Absent",
               position = "left"
             ))
       ),
       f7Grid(
-        cols = 4,
-        div(style = "text-align: right;",
-            f7Checkbox(
-              inputId = paste0("GroundwaterPresent",ID),
-              label = "Groundwater",
-              value = FALSE
-            )),
-        div(id = "radio", class = "horizontal-radio",style = "display: flex; justify-content: center;", 
+        cols = 2,
+        div(id = "radio", class = "horizontal-radio",style = "justify-content: center;", 
             f7Radio(
               inputId = paste0("GroundwaterRank",ID),
-              label = NULL,
-              choices = c("1", "2", "3"),
-              selected = NULL,
+              label = "Groundwater",
+              choices = c("Absent","1", "2", "3"),
+              selected = "Absent",
               position = "left"
             )),
-        div(style = "text-align: right;",
-            f7Checkbox(
-              inputId = paste0("OtherPresent",ID),
-              label = "Other",
-              value = FALSE
-            )),
-        div(id = "radio", class = "horizontal-radio",style = "display: flex; justify-content: center;", 
+        div(id = "radio", class = "horizontal-radio",style = "justify-content: center;",  
             f7Radio(
               inputId = paste0("OtherRank",ID),
-              label = NULL,
-              choices = c("1", "2", "3"),
-              selected = NULL,
+              label = "Other",
+              choices = c("Absent","1", "2", "3"),
+              selected = "Absent",
               position = "left"
             ))
       ),
       f7Grid(
         cols = 2,
-      f7Grid(
-        cols = 2,
-        div(style = "text-align: right;",
-            f7Checkbox(
-              inputId = paste0("CulvertPresent",ID),
-              label = "Culverts",
-              value = FALSE
-            )),
-        div(id = "radio", class = "horizontal-radio",style = "display: flex; justify-content: center;", 
+        div(id = "radio", class = "horizontal-radio",style = "justify-content: center;",  
             f7Radio(
               inputId = paste0("CulvertRank",ID),
-              label = NULL,
-              choices = c("1", "2", "3"),
-              selected = NULL,
+              label = "Culverts",
+              choices = c("Absent","1", "2", "3"),
+              selected = "Absent",
               position = "left"
-            ))),
+            )),
         f7Text(
           inputId = paste0("OtherSourceComment",ID),
           label = NULL,
-          placeholder = "Describe other source",
+          placeholder = "Describe Other Source",
           value="",
           style = list(outline = TRUE)
         ))
     ),
-        f7BlockTitle(title = "USACOE - Hydrology Indciators", size="large") %>% f7Align(side = "center"),
+        f7BlockTitle(title = "USACOE - Hydrology Indicators", size="large") %>% f7Align(side = "center"),
         f7Card(
           outline = TRUE,
           raised = TRUE,
-          p(align = "left", "Fill in bubbles for all applicable indicators. Not all indicators will be found in every wetland."),
+          p(align = "left", strong("Fill in boxes for all applicable indicators. Not all indicators will be found in every wetland.")),
             p(align = "left", strong("Group A - Observation of Surface Water or Saturated Soils")),
             f7Grid(
               cols = 3,
@@ -306,7 +221,10 @@ formHydrology <- function(ID) {
                     inputId = paste0("A3",ID),
                     label = "Soil Saturation (A3)"
                   ))
-              ),
+              )),
+          f7Card(
+            outline = TRUE,
+            raised = TRUE,
             p(align = "left", strong("Group B - Evidence of Recent Innundation")),
             f7Grid(
               cols = 3,
@@ -397,8 +315,10 @@ formHydrology <- function(ID) {
                     inputId = paste0("B16",ID),
                     label = "Moss Trim Lines (B16)"
                   ))
-            ),
-          
+            )),
+          f7Card(
+            outline = TRUE,
+            raised = TRUE,
               p(align = "left", strong("Group C - Evidence of Current or Recent Soil Saturation")),
               f7Grid(
                 cols = 3,
@@ -453,13 +373,11 @@ formHydrology <- function(ID) {
                       inputId = paste0("C10",ID),
                       label = "Fiddler Crab Burrows (C10)"
                     ))
-              )
-          ),
-    
-    p(align = "left", strong("Group D - Evidence from Other Site Conditions or Data")),
+              )),
     f7Card(
       outline = TRUE,
       raised = TRUE,
+      p(align = "left", strong("Group D - Evidence from Other Site Conditions or Data")),
     f7Grid(
       cols = 3,
       div(style = "text-align: right;", 
@@ -470,7 +388,7 @@ formHydrology <- function(ID) {
       div(style = "text-align: right;", 
           f7Checkbox(
             inputId = paste0("D2",ID),
-            label = HTML("<br/>Geomorphic Position (D2))")
+            label = HTML("<br/>Geomorphic Position (D2)")
           )),
       div(style = "text-align: right;", 
           f7Checkbox(

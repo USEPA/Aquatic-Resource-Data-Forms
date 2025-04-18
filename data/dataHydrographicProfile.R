@@ -7,22 +7,22 @@ for (x in ID) {
   
   for (i in 1:N){ 
     mylist[[i]] <- data.frame(Site_ID = x,
-                              Station_Depth = ifelse(is.null(input[[paste0("stationdepth_",x)]]),"",input[[paste0("stationdepth_",x)]]),
-                              Cable_Length = ifelse(is.null(input[[paste0("cablelength_",x)]]),"",input[[paste0("cablelength_",x)]]),
-                              Secchi_Depth = ifelse(is.null(input[[paste0("secchidepth_",x)]]),"",input[[paste0("secchidepth_",x)]]),
-                              CleartoBottom = ifelse(is.null(input[[paste0("cleartobottom_",x)]]),"",input[[paste0("cleartobottom_",x)]]),
+                              Station_Depth = ifelse(is.null(input[[paste0("stationdepth",x)]]),"",input[[paste0("stationdepth",x)]]),
+                              Cable_Length = ifelse(is.null(input[[paste0("cablelength",x)]]),"",input[[paste0("cablelength",x)]]),
+                              Secchi_Depth = ifelse(is.null(input[[paste0("secchidepth",x)]]),"",input[[paste0("secchidepth",x)]]),
+                              CleartoBottom = ifelse(is.null(input[[paste0("cleartobottom",x)]]),"",input[[paste0("cleartobottom",x)]]),
                               Line = i,
-                              Upcast = ifelse(is.null(input[[paste0("ProfileUpcast_",i,"_",x)]]),"",input[[paste0("ProfileUpcast_",i,"_",x)]]),
-                              Depth = ifelse(is.null(input[[paste0("ProfileDepth_",i,"_",x)]]),"",input[[paste0("ProfileDepth_",i,"_",x)]]),
-                              Depth_Unit = ifelse(is.null(input[[paste0("ProfileDepthUnit_",x)]]),"",input[[paste0("ProfileDepthUnit_",x)]]),
-                              Temperature = ifelse(is.null(input[[paste0("ProfileTemperature_",i,"_",x)]]),"",input[[paste0("ProfileTemperature_",i,"_",x)]]),
-                              Temperature_Unit = ifelse(is.null(input[[paste0("ProfileTempUnit_",x)]]),"",input[[paste0("ProfileTempUnit_",x)]]),
-                              pH = ifelse(is.null(input[[paste0("ProfilePH_",i,"_",x)]]),"",input[[paste0("ProfilePH_",i,"_",x)]]),
-                              DO = ifelse(is.null(input[[paste0("ProfileDO_",i,"_",x)]]),"",input[[paste0("ProfileDO_",i,"_",x)]]),
-                              DO_Unit = ifelse(is.null(input[[paste0("ProfileDOUnit_",x)]]),"",input[[paste0("ProfileDOUnit_",x)]]),
-                              Conductivity = ifelse(is.null(input[[paste0("ProfileConductivity_",i,"_",x)]]),"",input[[paste0("ProfileConductivity_",i,"_",x)]]),
-                              COND_Unit = ifelse(is.null(input[[paste0("ProfileCONDUnit_",x)]]),"",input[[paste0("ProfileCONDUnit_",x)]]),
-                              Comments = ifelse(is.null(input[[paste0("HydrographicProfile",x,"_Comment_",i)]]),"",input[[paste0("HydrographicProfile",x,"_Comment_",i)]])
+                              Upcast = ifelse(is.null(input[[paste0("ProfileUpcast",i,x)]]),"",input[[paste0("ProfileUpcast",i,x)]]),
+                              Depth = ifelse(is.null(input[[paste0("ProfileDepth",i,x)]]),"",input[[paste0("ProfileDepth",i,x)]]),
+                              Depth_Unit = ifelse(is.null(input[[paste0("ProfileDepthUnit",x)]]),"",input[[paste0("ProfileDepthUnit",x)]]),
+                              Temperature = ifelse(is.null(input[[paste0("ProfileTemperature",i,x)]]),"",input[[paste0("ProfileTemperature",i,x)]]),
+                              Temperature_Unit = ifelse(is.null(input[[paste0("ProfileTempUnit",x)]]),"",input[[paste0("ProfileTempUnit",x)]]),
+                              pH = ifelse(is.null(input[[paste0("ProfilePH",i,x)]]),"",input[[paste0("ProfilePH",i,x)]]),
+                              DO = ifelse(is.null(input[[paste0("ProfileDO",i,x)]]),"",input[[paste0("ProfileDO",i,x)]]),
+                              DO_Unit = ifelse(is.null(input[[paste0("ProfileDOUnit",x)]]),"",input[[paste0("ProfileDOUnit",x)]]),
+                              Conductivity = ifelse(is.null(input[[paste0("ProfileConductivity",i,x)]]),"",input[[paste0("ProfileConductivity",i,x)]]),
+                              COND_Unit = ifelse(is.null(input[[paste0("ProfileCONDUnit",x)]]),"",input[[paste0("ProfileCONDUnit",x)]]),
+                              Comments = ifelse(is.null(input[[paste0("HydrographicProfile",x,"Comment",i)]]),"",input[[paste0("HydrographicProfile",x,"Comment",i)]])
     )
     newlist <- do.call("rbind", mylist)
   }
@@ -31,7 +31,8 @@ for (x in ID) {
 
 
 xy <- xy[order(xy$Site_ID, xy$Line), ]
-xy[!(xy$Upcast==FALSE & xy$Depth=="" & xy$Temperature=="" & xy$pH=="" & xy$DO=="" & xy$Conductivity==""& xy$Comments==""), ]
+xy <- unique(xy)
+xy[!(xy$Depth=="" & xy$Temperature=="" & xy$pH=="" & xy$DO=="" & xy$Conductivity==""& xy$Comments==""), ]
 
 
 

@@ -12,7 +12,7 @@ insertPlantCollection <- function(ID,n) {
       cols = 3,
       p(align = "center", strong(paste0(n))),
       f7Text(
-        inputId = paste0("plantname_",n,"_",ID),
+        inputId = paste0("plantname",n,ID),
         label = NULL,
         value="",
         placeholder = "Enter New Species",
@@ -20,21 +20,27 @@ insertPlantCollection <- function(ID,n) {
       ),
       div(style = "text-align: center;", 
           f7Checkbox(
-            inputId = paste0("unknown_",n,"_",ID),
+            inputId = paste0("unknown",n,ID),
             label = NULL,
             value = FALSE
           ))
     ),
     f7Grid(
       cols = 3,
+      p(align = "center", strong("Plot")),
       p(align = "center", strong("Height Class")),
       p(align = "center", strong("Percent Cover")),
-      p(align = "center", strong("")),
     ),
     f7Grid(
       cols = 3,
+      f7Text(
+        inputId = paste0("plot",n,ID),
+        label = NULL,
+        value="",
+        style = list(outline = TRUE)
+      ),
       f7Select(
-        inputId = paste0("heightclass_",n,"_",ID),
+        inputId = paste0("heightclass",n,ID),
         label = NULL,
         selected = NULL,
         choices = c("Less than 0.5m",
@@ -46,15 +52,11 @@ insertPlantCollection <- function(ID,n) {
                     "Liana, vine, or epiphyte"),
         style = list(outline = TRUE)),
       f7Text(
-        inputId = paste0("percentcover_",n,"_",ID),
+        inputId = paste0("percentcover",n,ID),
         label = NULL,
         value="",
         style = list(outline = TRUE)
-      ),
-      #Notice difference in Button ID 
-      f7Button(paste0("PlantCollection",ID,"_",n), label=NULL, fill=FALSE,
-               icon = f7Icon("text_bubble_fill",
-                             style = "font-size: 45px;"))
+      )
     ),
     f7Grid(
       cols = 3,
@@ -66,15 +68,39 @@ insertPlantCollection <- function(ID,n) {
       cols = 3,
       div(style = "text-align: center;", 
           f7Checkbox(
-            inputId = paste0("tree_",n,"_",ID),
+            inputId = paste0("tree",n,ID),
             label = NULL,
             value = FALSE
           )),
       conditionalPanel(
-        condition = paste0('input.tree_',n,'_',ID),
-        f7Button(paste0("TreePlantCollection",ID,"_",n), "Enter Tree Data", color = "blue")
+        condition = paste0('input.tree',n,ID),
+        f7Button(paste0("TreePlantCollection",ID,"_",n), "Enter Tree Data", color = "blue"),
+        f7Sheet(
+          id = paste0("TreePlantCollection",ID,n),
+          orientation = "bottom",
+          closeByOutsideClick = TRUE,
+          swipeHandler = FALSE,
+          insertTreeData(ID,n)
+        )
       ),
-      p(align = "center", strong("")),
+      #Notice difference in Button ID 
+      f7Button(paste0("PlantCollection",ID,"_",n), label=NULL, fill=FALSE,
+               icon = f7Icon("text_bubble_fill",
+                             style = "font-size: 45px;")),
+      f7Sheet(
+        id = paste0("PlantCollection",ID,n),
+        orientation = "bottom",
+        closeByOutsideClick = TRUE,
+        swipeHandler = FALSE,
+        options = list(breakpoints = c(0.8)),
+        p(align = "left", strong(paste0("Comment ",n))),
+        f7Block(
+          f7TextArea(inputId = paste0("PlantCollection",ID,"Comment",n),
+                     value="",
+                     label = NULL,
+                     style = list(outline = TRUE))
+        )
+      )
     )
   )
 }

@@ -1,47 +1,5 @@
-library(shiny)
-library(shinyMobile)
-library(zip)
-library(openxlsx)
+source("global.R")
 
-addResourcePath(prefix = 'www', directoryPath = './www')
-
-now_utc <- function() {
-  now <- Sys.time()
-  attr(now, "tzone") <- "UTC"
-  now
-}
-
-
-watersource <- c("Stream","SnowMelt","Springs","OverbankFlood","Lake","EstuaryChannel","Precipitation","EstuarySurge","Groundwater","Culvert","Other")
-#Available Form IDs
-X <- c("Verification", "WaterChemistry", "FishCollection", "HydrographicProfile", "PlantCollection", "Hydrology", "Export")
-
-# source modules
-e <- environment()
-path <- "forms/"
-sapply(
-  list.files(
-    path,
-    include.dirs = FALSE,
-    pattern = ".R",
-    ignore.case = TRUE
-  ),
-  function(f) {
-    source(file.path(path, f), local = e)
-  }
-)
-
-app_options <- list(
-  theme = "md",
-  dark = FALSE,
-  #preloader = TRUE,
-  # color = "white",
-  # fill = "green",
-  navbar = list(
-    # hideOnPageScroll = TRUE,
-    mdCenterTitle = TRUE
-  )
-)
 #### UI ----
 shinyApp(
   ui = f7Page(
@@ -133,15 +91,26 @@ shinyApp(
                 div(id="instructions",
                     h3(strong("Instructions:"))),
                 tags$ul(
-                  tags$li("Choose Resource Type, input a Site ID and click the", strong("Insert")," button."),
-                  tags$li("A tab with the Site ID you input will be added to the sidebar. In the tab, relevant forms will be assembled for you."),
+                  tags$li("Choose a Resource Type, input a unique Site ID and click the", strong("Insert")," button."),
+                  tags$li("A tab with the Site ID you input will be added to the sidebar panel. In the tab, relevant forms will be assembled for you."),
                   tags$li("Once field work is complete, navigate to the", strong("Export Data"),"tab to download the forms for that site."),
                   style="font-size: 16px"
-                ))
+                )),
+              tags$ol(
+                h3(strong("Best Practices:")),
+                tags$ul(
+                  tags$li("User's should regularly save forms to prevent data loss if connection is lost."),
+                  tags$li("If the user's connection is disconnected or if the applications failed, lost data can be reloaded by adding the same Site ID as the lost data, navigate to the form of interest and press", strong("Load Data.")),
+                  tags$li("If user's had more than the alotted lines of data saved, users must add in empty lines before loading data to allow saved data to appear."),
+                  tags$li("User's cannot export a site without having previously opened the site from the site list. Therefore, it best to enter Site ID's as you go instead of all at once."),
+                style="font-size: 16px"
+                )
+              )
             )
           )
-      )
-    ),
+    )
+  ),
+                
   server = function(input, output, session) {
     
     rv <- reactiveValues(tab_names=character(0))
@@ -256,8 +225,9 @@ shinyApp(
         where = "afterEnd",
         ui = div(id = paste0("Panel",ID),
                  f7PanelMenu(id="tabs", #only way we could get input$tabs to work on newly input tabs
-                             inset = TRUE,
-                             outline = TRUE,
+                             inset = FALSE,
+                             outline = FALSE,
+                             mode = "contacts",
                   f7PanelItem(
                    tabName = paste0("tab",ID),
                    title = ID,
@@ -381,8 +351,7 @@ shinyApp(
       })
     })
 
-    
-    
+
     
 
     # data Reactives ----
@@ -409,13 +378,11 @@ shinyApp(
     HYDROLOGY <- reactive({
       source("data/dataHydrology.R", local = TRUE)$value
     })
-
-
     
-    values <- reactiveValues(forms=0)
 
     # Insert UI forms ----
     # Adds additional rows for many forms
+    values <- reactiveValues(forms=0)
     observeEvent(input[[paste0("Add", input$forms)]], {
 
       if(!(input$forms %in% names(values$forms))){
@@ -460,7 +427,7 @@ shinyApp(
       #Keeps track of how many times button is pressed for each ID and form
       values$forms[[paste0(input$forms)]] <- values$forms[[paste0(input$forms)]] + 1
       })
-
+   
 
     # Comments ----
     # This code will work for all forms to create a popup window for comments.
@@ -475,30 +442,21 @@ shinyApp(
         }
         #prevents triggering when switching between forms
         req(commentval$forms[[paste0(input$forms,"_",n)]] == input[[paste0(input$forms,"_",n)]][1])
-
-      f7Popup(
-        id = paste0(input$forms,"_popup_",i),
-        title = paste0("Comment ",i),
-        f7Block(
-          f7TextArea(inputId = paste0(input$forms,"_Comment_",i),
-                     value="",
-                     label = NULL,
-                     style = list(outline = TRUE))
-        )
-      )
+        
+        updateF7Sheet(id = paste0(input$forms,i))
+        
       commentval$forms[[paste0(input$forms,"_",n)]] <- commentval$forms[[paste0(input$forms,"_",n)]] + 1
       })
     })
-
 
     # Fish Counter ----
     fishval <- reactiveValues(val=0)
     lapply(1:150, function(i) {
       observeEvent(
-        c(input[[paste0(input$forms,"fishless150_",i)]],
-          input[[paste0(input$forms,"fish300_",i)]],
-          input[[paste0(input$forms,"fish460_",i)]],
-          input[[paste0(input$forms,"fishgreat460_",i)]]), {
+        c(input[[paste0(input$forms,"fishless150",i)]],
+          input[[paste0(input$forms,"fish300",i)]],
+          input[[paste0(input$forms,"fish460",i)]],
+          input[[paste0(input$forms,"fishgreat460",i)]]), {
 
             ID <- gsub(paste("FishCollection", collapse="|"), "", input$forms)
 
@@ -513,8 +471,8 @@ shinyApp(
 
             my.sum = 0
             for(i in 1:N){
-              current = input[[paste0(input$forms,"fishless150_",i)]] + input[[paste0(input$forms,"fish300_",i)]] +
-                input[[paste0(input$forms,"fish460_",i)]] + input[[paste0(input$forms,"fishgreat460_",i)]]
+              current = input[[paste0(input$forms,"fishless150",i)]] + input[[paste0(input$forms,"fish300",i)]] +
+                input[[paste0(input$forms,"fish460",i)]] + input[[paste0(input$forms,"fishgreat460",i)]]
 
               # Update variable storing sum
               my.sum = my.sum + current
@@ -537,26 +495,26 @@ shinyApp(
           })
     })
     
-    # Hydrology Sources radiobutton update ----
-    lapply(watersource, function(i) {
-      observeEvent(input[[paste0(i,"Rank",gsub(paste("Hydrology", collapse="|"), "", input$forms))]], {
-        ID <- gsub(paste("Hydrology", collapse="|"), "", input$forms)
-        updateF7Checkbox(
-          inputId = paste0(i,"Present",ID),
-          value = TRUE
-        )
-      })
-
-      observeEvent(input[[paste0(i,"Present",gsub(paste("Hydrology", collapse="|"), "", input$forms))]], {
-        req(input[[paste0(i,"Present",gsub(paste("Hydrology", collapse="|"), "", input$forms))]]==FALSE)
-        
-        ID <- gsub(paste("Hydrology", collapse="|"), "", input$forms)
-        updateF7Radio(
-          inputId = paste0(i,"Rank",ID),
-          selected = character(0)
-        )
-      })
-    })
+    ## Hydrology Sources radiobutton update ----
+    # lapply(watersource, function(i) {
+    #   observeEvent(input[[paste0(i,"Rank",gsub(paste("Hydrology", collapse="|"), "", input$forms))]], {
+    #     ID <- gsub(paste("Hydrology", collapse="|"), "", input$forms)
+    #     updateF7Checkbox(
+    #       inputId = paste0(i,"Present",ID),
+    #       value = TRUE
+    #     )
+    #   })
+    # 
+    #   observeEvent(input[[paste0(i,"Present",gsub(paste("Hydrology", collapse="|"), "", input$forms))]], {
+    #     req(input[[paste0(i,"Present",gsub(paste("Hydrology", collapse="|"), "", input$forms))]]==FALSE)
+    #     
+    #     ID <- gsub(paste("Hydrology", collapse="|"), "", input$forms)
+    #     updateF7Radio(
+    #       inputId = paste0(i,"Rank",ID),
+    #       selected = character(0)
+    #     )
+    #   })
+    # })
     
     
     # Tree Data popup----
@@ -571,13 +529,9 @@ shinyApp(
         }
         #prevents triggering when switching between forms
         req(treeval$val[[paste0("Tree",input$forms,"_",n)]] == input[[paste0("Tree",input$forms,"_",n)]][1])
-
-        f7Popup(
-          id = paste0(input$forms,"_tree_",i),
-          title = "Tree Species Data",
-          page = TRUE,
-          insertTreeData(ID,n)
-        )
+        
+        updateF7Sheet(id = paste0("Tree",input$forms,i))
+        
         treeval$val[[paste0("Tree",input$forms,"_",n)]] <- treeval$val[[paste0("Tree",input$forms,"_",n)]] + 1
       })
     })
@@ -586,10 +540,10 @@ shinyApp(
     output$download <- downloadHandler(
       filename = function() {
         if(input[[paste0("exportchoice", gsub(paste(X, collapse = "|"), "", input$forms))]] == 1){
-          paste0(gsub(paste(X, collapse = "|"), "", input$forms), "_Field_Data_", format(Sys.Date(), "%Y-%m-%d"),
+          paste0("Field_Data_", format(Sys.Date(), "%Y-%m-%d"),
                  ".zip", sep="")
         } else {
-          paste0(gsub(paste(X, collapse = "|"), "", input$forms), "_Field_Data_", format(Sys.Date(), "%Y-%m-%d"),
+          paste0("Field_Data_", format(Sys.Date(), "%Y-%m-%d"),
                  ".xlsx", sep="")
         }
       },
@@ -657,10 +611,138 @@ shinyApp(
         }
       }
     )
-
+    
+    # Save/Load Data ----
+    saveval <- reactiveValues(forms=0)
+    observeEvent(input[[paste0("Save",input$forms)]], {
+      ID <- gsub(paste(X, collapse="|"), "", input$forms)
+      form <- X[vapply(X, function(x) grepl(x, input$forms), logical(1))]
+      if(!(paste0("Save",input$forms) %in% names(saveval$forms))){
+        saveval$forms[[paste0("Save",input$forms)]] <- 1
+      }
+      req(saveval$forms[[paste0("Save",input$forms)]] == input[[paste0("Save",input$forms)]][1])
+      f7Toast(
+        position = "center",
+        text = HTML(paste0("<b>Saved ",form," Form for SiteID: ",ID,"</b>")),
+        closeButton=FALSE
+      )
+      # f7Dialog(
+      #   id = paste0("savedialog",input$forms),
+      #   type = "confirm",
+      #   title = paste0("Save Form?"),
+      #   text = ""
+      # )
+      saveval$forms[[paste0("Save",input$forms)]] <- saveval$forms[[paste0("Save",input$forms)]] + 1
+    })
+    
+    loadval <- reactiveValues(forms=0)
+    observeEvent(input[[paste0("Load",input$forms)]], {
+      ID <- gsub(paste(X, collapse="|"), "", input$forms)
+      
+      if(!(paste0("Load",input$forms) %in% names(loadval$forms))){
+        loadval$forms[[paste0("Load",input$forms)]] <- 1
+      }
+      req(loadval$forms[[paste0("Load",input$forms)]] == input[[paste0("Load",input$forms)]][1])
+      f7Dialog(
+        id = paste0("loaddialog",input$forms),
+        type = "confirm",
+        title = paste0("Load Saved Data?"),
+        text = ""
+      )
+      loadval$forms[[paste0("Load",input$forms)]] <- loadval$forms[[paste0("Load",input$forms)]] + 1
+    })
+    
+    
+    
+    # Aggregate all form data. When the Submit button is clicked, save the form data
+    observeEvent(input[[paste0("Save",input$forms)]], {
+      #req(input[[paste0("savedialog",input$forms)]]==TRUE)
+      
+        ID <- gsub(paste(X, collapse="|"), "", input$forms)
+        fields <- paste0(X[vapply(X, function(x) grepl(x, input$forms), logical(1))],"Fields")
+        form <- X[vapply(X, function(x) grepl(x, input$forms), logical(1))]
+      if(form=="Verification" | form=="Hydrology"){
+         data <- sapply(paste0(get(fields),ID), function(i) input[[i]])
+      } else if(form=="WaterChemistry"){
+         N <- ifelse(is.null(input[[paste0("Add",form,ID)]][1]), 1, input[[paste0("Add",form,ID)]][1] + 1)
+         n_seq <- seq(from = 1, to = N)
+         data <- c(paste(rep(get(fields), each = length(n_seq)), n_seq, ID, sep = ""),
+                   paste(input$forms, rep("Comment", each = length(n_seq)), n_seq, sep = ""))
+         
+         data <- sapply(data, function(i) input[[i]])
+      } else if(form=="FishCollection"){
+          N <- ifelse(is.null(input[[paste0("Add",form,ID)]][1]), 15, input[[paste0("Add",form,ID)]][1] + 15)
+          n_seq <- seq(from = 1, to = N)
+          data <-  c(paste0(rep(c("fishgear","fishingreach","fishgeneralcomments")),ID),
+                     paste(input$forms, rep(c("fishless150","fish300","fish460","fishgreat460"), each = length(n_seq)), n_seq, sep = ""),
+                     paste(rep(get(fields), each = length(n_seq)), n_seq, ID, sep = ""),
+                     paste(input$forms, rep("Comment", each = length(n_seq)), n_seq, sep = ""))
+          
+          data <- sapply(data, function(i) input[[i]])
+      } else if(form=="HydrographicProfile"){
+        N <- ifelse(is.null(input[[paste0("Add",form,ID)]][1]), 15, input[[paste0("Add",form,ID)]][1] + 15)
+        n_seq <- seq(from = 1, to = N)
+        data <-  c(paste0(rep(get(fields)),ID),
+                   paste(rep(c("ProfileUpcast","ProfileDepth","ProfileTemperature","ProfilePH","ProfileDO","ProfileConductivity"), each = length(n_seq)), n_seq, ID, sep = ""),
+                   paste(input$forms, rep("Comment", each = length(n_seq)), n_seq, sep = ""))
+        
+        data <- sapply(data, function(i) input[[i]])
+      }  else if(form=="PlantCollection"){
+        N <- ifelse(is.null(input[[paste0("Add",form,ID)]][1]), 20, input[[paste0("Add",form,ID)]][1] + 20)
+        n_seq <- seq(from = 1, to = N)
+        data <-  c(paste0(rep(get(fields), each = length(n_seq)), n_seq, ID, sep = ""),
+                   paste(input$forms, rep("Comment", each = length(n_seq)), n_seq, sep = ""))
+        
+        data <- sapply(data, function(i) input[[i]])
+      } 
+      saveData(data,input$forms)
+    })
 
     
-  
+    observeEvent(input[[paste0("loaddialog",input$forms)]], {
+      req(input[[paste0("loaddialog",input$forms)]]==TRUE)
+      #add DateCol
+
+      lapply(colnames(loadData(input$forms)), function(i) {
+        updateF7Text(
+          inputId = i,
+          value = ifelse(loadData(input$forms)[[i]]=="TRUE",TRUE,
+                         ifelse(loadData(input$forms)[[i]]=="FALSE",FALSE,
+                                loadData(input$forms)[[i]]))
+        )
+        updateF7Select(
+          inputId = i,
+          selected = ifelse(loadData(input$forms)[[i]]=="TRUE",TRUE,
+                            ifelse(loadData(input$forms)[[i]]=="FALSE",FALSE,
+                                   loadData(input$forms)[[i]]))
+         )
+        updateF7Stepper(
+            inputId = i,
+            value = ifelse(loadData(input$forms)[[i]]=="TRUE",TRUE,
+                           ifelse(loadData(input$forms)[[i]]=="FALSE",FALSE,
+                                  loadData(input$forms)[[i]]))
+          )
+        updateF7TextArea(
+          inputId = i,
+          value = ifelse(loadData(input$forms)[[i]]=="TRUE",TRUE,
+                         ifelse(loadData(input$forms)[[i]]=="FALSE",FALSE,
+                                loadData(input$forms)[[i]]))
+        )
+        updateF7Toggle(
+          inputId = i,
+          checked = ifelse(loadData(input$forms)[[i]]=="TRUE",TRUE,
+                           ifelse(loadData(input$forms)[[i]]=="FALSE",FALSE,
+                                  loadData(input$forms)[[i]]))
+        )
+        updateF7Radio(
+          inputId = i,
+          selected = ifelse(loadData(input$forms)[[i]]=="TRUE",TRUE,
+                            ifelse(loadData(input$forms)[[i]]=="FALSE",FALSE,
+                                                 loadData(input$forms)[[i]]))
+        )
+      })
+    })
+    
     
     
 

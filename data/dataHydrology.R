@@ -6,8 +6,8 @@ for (x in ID) {
   mylist[[x]] <- data.frame(
     #We use is.null because some forms are not created depending on resource type.
     Site_ID = x,
-    Site_Name = ifelse(is.null(input[[paste0("siteName_",x)]]),"",input[[paste0("siteName_",x)]]),
-    Resource = ifelse(is.null(input[[paste0("resource_",x)]]),"",input[[paste0("resource_",x)]]),
+    Site_Name = ifelse(is.null(input[[paste0("siteName",x)]]),"",input[[paste0("siteName",x)]]),
+    Resource = ifelse(is.null(input[[paste0("resource",x)]]),"",input[[paste0("resource",x)]]),
     Sample_Time = ifelse(is.null(input[[paste0("HydrologyTime",x)]]),"",input[[paste0("HydrologyTime",x)]]),
     Curr_Weather = ifelse(is.null(input[[paste0("HydrologyWeather",x)]]),"",input[[paste0("HydrologyWeather",x)]]),
     Past_Weather = ifelse(is.null(input[[paste0("HydrologyPastWeather",x)]]),"",input[[paste0("HydrologyPastWeather",x)]]),
@@ -25,7 +25,7 @@ mylist <- list()
 for (x in ID) {
   for(i in watersource) {
   mylist[[i]] <- data.frame(
-    Present = ifelse(is.null(input[[paste0(i,"Present",x)]]),"",input[[paste0(i,"Present",x)]]),
+    # Present = ifelse(is.null(input[[paste0(i,"Present",x)]]),"",input[[paste0(i,"Present",x)]]),
     Rank = ifelse(is.null((input[[paste0(i,"Rank",x)]])),"",input[[paste0(i,"Rank",x)]])
   )
   newlist <- do.call("cbind", mylist)
@@ -35,7 +35,7 @@ for (x in ID) {
 
 source_names <- c()
 for(i in watersource){
-  source_names[[i]] <- c(paste0(i,"_Present"),
+  source_names[[i]] <- c(#paste0(i,"_Present"),
                          paste0(i,"_Rank"))
 }
 names(secondary) <- unlist(source_names, use.names=FALSE)
@@ -60,19 +60,19 @@ for (x in ID) {
 names(tertiary) <- indicators
 
 # #Hydrology Comments
-
-
 xy <- list() 
 other <- do.call("rbind", lapply(ID, function(x) {
-  xy[[x]] <- data.frame(Other_Source = input[[paste0("OtherSourceComment",x)]])
+  xy[[x]] <- data.frame(Other_Source = ifelse(is.null(input[[paste0("OtherSourceComment",x)]]),"",input[[paste0("OtherSourceComment",x)]]))
 })
 )
 
 xy <- list() 
 comments <- do.call("rbind", lapply(ID, function(x) {
-  xy[[x]] <- data.frame(Hydrology_Comments = input[[paste0("HydrologyComments",x)]])
+  xy[[x]] <- data.frame(Hydrology_Comments = ifelse(is.null(input[[paste0("HydrologyComments",x)]]),"",input[[paste0("HydrologyComments",x)]]))
 })
 )
 
-cbind(primary, secondary, other, tertiary, comments)
+xy <- cbind(primary, secondary, other, tertiary, comments)
+xy <- unique(xy)
+xy[!(xy$Stream_Rank== "" & xy$Springs_Rank==""), ]
 

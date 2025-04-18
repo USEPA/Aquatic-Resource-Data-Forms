@@ -1,3 +1,8 @@
+
+:root {
+  --f7-sheet-height: 90%;
+}
+
  #radio .horizontal-radio {
         display: flex;
         justify-content: center;
